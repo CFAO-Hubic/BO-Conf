@@ -1,121 +1,98 @@
-Class CFAO.HUBIC.BofficeConf.BO.banks.SG.mepTerm Extends Ens.BusinessOperation
+Class CFAO.HUBIC.BofficeConf.BO.banks.SG.mepTerm Extends CFAO.HUBIC.BofficeConf.BO.banks.masterClass
 {
-
-Parameter INVOCATION = "Queue";
 
 Method saveAndCheckMatch(pRequest As %Stream.FileCharacter, Output pResponse As Ens.StringResponse) As %Status
 {
+	set data = {}
+	set data.bank = "SG"
+	set data.confType = "MEP Spot"
+	set firstLine = 1
+
 	set pResponse = ##class(CFAO.HUBIC.BofficeConf.messages.checkBankMsg).%New()
-	set pResponse.bank = "SG"
+	set pResponse.bank = data.bank
 
-	set bank		= "SG"
-	set confType	= "MEP Terme"
-	set i = 0
+	do pRequest.Rewind()
 
-    set match = 0
-
-	set (
-		fileName,
-		contrat,
-		RefOpe,
-		tradeDate,
-		valueDate,
-		maturityDate,
-		term,
-		sens,
-		amountBuy,
-		deviseBuy,
-		amountSell,
-		deviseSell,
-		IDForex,
-    	IdEAI
-	) = ""
-
-	Do pRequest.Rewind()
-
-	While 'pRequest.AtEnd {
-		set i = i + 1
+	// Read the txt file (converted from pdf) to find the relevant informations
+	while 'pRequest.AtEnd {
 		set line = pRequest.ReadLine()
 
-		//Nom du fichier traité -------------------------------------
-		If i = 1 {
-			set fileName = $p(line, ".", 1)
-			$$$LOGINFO("Passage MEP TERME : " _fileName)
+		// Processed fileName
+		If firstLine = 1 {
+			set data.fileName = $p(line, ".", 1)
+			set firstLine = 0
 		}
 
-		//Numero du contrat -----------------------------------------
+		// Contract number
 		if $Find(line,"Ref SG de Transaction") {
-		   set contrat= $replace($piece(line,":",2)," ","")
+		   set data.contrat= $replace($piece(line,":",2)," ","")
 		}
 
-		//Réference de l'opération ----------------------------------
+		// Operation reference
 		if $Find(line ,"Ref SG de Transaction") {
-			set RefOpe = $replace($piece(line,":",2)," ","")		   		
+			set data.refOpe = $replace($piece(line,":",2)," ","")		   		
 		}
 
-		//DATE DE NÉGOCIATION ou TRADE DATE Format 03-MAR-2014 ------
+		// Trade date (03-MAR-2014)
 		if $Find(line ,"Date de Conclusion") {
-			set tradeDate = $piece(line,": ",2)		   		
+			set data.tradeDate = ##class(CFAO.HUBIC.Outils).convertTextDate($piece(line,": ",2), "-")
 		}
 
-		//Date de maturité --------------------------------------------
+		// Maturity date
 		if $Find(line ,"Date de Paiement") {
-			set maturityDate = $piece(line,": ",2)
+			set data.maturityDate = ##class(CFAO.HUBIC.Outils).convertTextDate($piece(line,": ",2), "-")
 		}
 
-		//Terme -----------------------------------
+		// Term
 		if $Find(line ,"Taux") {
-			set term = $replace($piece(line,":",2)," ","")
-			set term = (term * 1)	
-			if $Extract(term,1,1)="."{
-				set term = "0"_term
+			set data.term = $replace($piece(line,":",2)," ","") * 1
+			if $Extract(data.term,1,1)="."{
+				set data.term = "0" _ data.term
 			}
 		}
 
-		//NOUS ACHETONS --------------------------------------
+		// Buyed
 		if $Find(line ,"Montant et Devise à verser par la Partie B") {
 			set buyed = $replace($piece(line,":",2)," ","")
 			if buyed {
-				set amountBuy = $extract(buyed,1,*-3)
-				set deviseBuy = $extract(buyed,*-2,*)
+				set data.amountBuy = $extract(buyed,1,*-3)
+				set data.deviseBuy = $extract(buyed,*-2,*)
 			}
 		}
 
-		//NOUS VENDONS ----------------------------------------------
+		// Selled
 		if $Find(line ,"Montant et Devise à verser par la Partie A") > 0 {
 			set selled = $replace($piece(line,":",2)," ","")
 			if selled {
-				set amountSell =  $extract(selled,1,*-3)
-				set deviseSell = $extract(selled,*-2,*)
+				set data.amountSell =  $extract(selled,1,*-3)
+				set data.deviseSell = $extract(selled,*-2,*)
 			}
 		}
 	}
 
-	//Convert format : 01-JAN-2000 <==> 2000-01-01
-	if tradeDate set tradeDate = ##class(CFAO.HUBIC.Outils).convertTextDate(tradeDate)
-	if valueDate set valueDate = ##class(CFAO.HUBIC.Outils).convertTextDate(valueDate)
-	if maturityDate set maturityDate = ##class(CFAO.HUBIC.Outils).convertTextDate(maturityDate)
-
-    //On verifie que toutes les informations necessaires au rapprochement sont bien présentent ************************
-    If 'valueDate || 'amountBuy || 'deviseBuy || 'amountSell || 'deviseSell || 'term {
+    // Check if every requiered fields are provided
+    If 'data.amountBuy || 'data.deviseBuy || 'data.amountSell || 'data.deviseSell || 'data.term {
 	    set pResponse.status = 0
 	    set pResponse.message = "SGMEP - Valeur de rapprochement manquante"
 	    quit $$$OK
     }
 
-    // Requete de rapprochement entre la Confirmation et l'une des ligne du journal Forex
+    // Matching requests between forex and bank tables
+	
+
+
 	&sql(
 		SELECT
 			COUNT(*),
-			IDForex,
+			idForex,
 			ID,
 			confType
 		INTO
 			:match,
-			:IDForex,
-			:IdEaiForex,
-			:confType
-	    FROM CFAO_HUBIC_BofficeConf_tables.forex 
+			:data.idForex,
+			:data.idEaiForex,
+			:data.confType
+	    FROM CFAO_HUBIC_BofficeConf_tables.forex
 		WHERE
 		    	maturityDate= :maturityDate
 		    AND bank		= :bank
@@ -127,20 +104,19 @@ Method saveAndCheckMatch(pRequest As %Stream.FileCharacter, Output pResponse As 
 	)
 
 	if match = 0 {
-	    // Requete de rapprochement entre la Confirmation et l'une des ligne du journal Forex
     	&sql(
     		SELECT 
 	    		COUNT(*),
-	    		IdForex,
+	    		idForex,
 	    		ID,
 	    		confType
     		INTO
     			:match,
-    			:IdForex,
-    			:IdEaiForex,
-    			:confType
-	    	FROM CFAO_HUBIC_BofficeConf_tables.forex 
-		    WHERE 
+    			:data.idForex,
+    			:data.idEaiForex,
+    			:data.confType
+	    	FROM CFAO_HUBIC_BofficeConf_tables.forex
+		    WHERE
 			    	tradeDate	= :tradeDate
 			    AND valueDate	= :valueDate
 			    AND bank		= :bank
@@ -155,14 +131,12 @@ Method saveAndCheckMatch(pRequest As %Stream.FileCharacter, Output pResponse As 
 
     If match = 0 set confType = "MEP"
 
-	// insert des données dans la tables des confirmations bancaires
+	// Insert data into bank table
 	set data = {}
 	set data.fileName		= fileName
 	set data.contrat		= contrat
 	set data.tradeDate		= tradeDate
-	set data.valueDate		= valueDate
 	set data.maturityDate	= maturityDate
-	set data.spot			= spot
 	set data.term			= term
 	set data.amountBuy		= amountBuy
 	set data.amountSell		= amountSell
@@ -173,34 +147,11 @@ Method saveAndCheckMatch(pRequest As %Stream.FileCharacter, Output pResponse As 
 	set data.idForex		= idForex
 	set data.idEaiForex		= idEaiForex
 
-	set tSC = ##class(CFAO.HUBIC.BofficeConf.tables.bank).save(data, match)
+	set tSC = ..save(data, match)
 
-	If 'tSC {
-		set pResponse.status = 0
-    	set pResponse.message = "Erreur lors de l'enregistrement de la confirmation : "_fileName
-	}else{
-		set idEaiBank = tSC
-	}
+	set pResponse.status = tSC.status
+	set pResponse.message = tSC.message
 
-	if match {
-		set tSC = ##class(CFAO.HUBIC.BofficeConf.tables.forex).match(idEaiForex, match, fileName, contrat)
-		
-		if 'tSC {
-			 set pResponse.status = 0
-			 set pResponse.message = "Erreur lors de la mise à jour de la ligne forex : "_idEaiForex
-			 quit $$$OK
-		}
-
-		set tSC = ##class(CFAO.HUBIC.BofficeConf.functions.commons).sendConfEmail(idEaiBank)
-
-		if 'tSC {
-			 set pResponse.status = 0
-			 set pResponse.message = tSC
-			 quit $$$OK
-		}
-	}
-
-	set pResponse.status = 1
 	Quit $$$OK
 }
 

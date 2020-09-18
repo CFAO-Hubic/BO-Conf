@@ -5,7 +5,7 @@ Property idForex As %String(MAXLEN = 50) [ SqlColumnNumber = 2 ];
 
 Property idEaiForex As %String(MAXLEN = 50) [ SqlColumnNumber = 3 ];
 
-Property fileName As %String(MAXLEN = 2000) [ SqlColumnNumber = 4 ];
+Property confFileName As %String(MAXLEN = 2000) [ SqlColumnNumber = 4 ];
 
 Property contrat As %String [ SqlColumnNumber = 5 ];
 
@@ -52,21 +52,20 @@ Property emailDate As %String [ SqlColumnNumber = 25 ];
 ClassMethod save(data As %Library.DynamicArray, match As %Integer) As %Status
 {
 	set newLine 			= ..%New()
-	set newLine.fileName	= $Piece(data.fileName,".",1)
+	set newLine.confFileName	= $Piece(data.confFileName,".",1)
 	set newLine.contrat		= data.contrat
-	set newLine.tradeDate	= data.tradeDate
-	set newLine.valueDate	= data.valueDate
-	set newLine.maturityDate= data.maturityDate
-	set newLine.spot		= data.spot
-	set newLine.term		= data.term
-	set newLine.amountBuy	= data.amountBuy
-	set newLine.amountSell	= data.amountSell
-	set newLine.deviseBuy	= data.deviseBuy
-	set newLine.deviseSell	= data.deviseSell
-	set newLine.bank		= data.bank
-	set newLine.confType	= data.confType
+	set newLine.tradeDate	= data.tradeDate // -----------------
+	set newLine.valueDate	= data.valueDate // -----------------
+	set newLine.maturityDate= data.maturityDate // -----------------
+	set newLine.spot		= data.spot // -----------------
+	set newLine.term		= data.term // -----------------
+	set newLine.amountBuy	= data.amountBuy // -----------------
+	set newLine.amountSell	= data.amountSell // -----------------
+	set newLine.deviseBuy	= data.deviseBuy // -----------------
+	set newLine.deviseSell	= data.deviseSell // -----------------
+	set newLine.bank		= data.bank // -----------------
+	set newLine.confType	= data.confType // -----------------
 	set newLine.matchDate	= data.matchDate
-	set newLine.matchStatus	= 0
 	set newLine.emailStatus	= 0
 	set newLine.archived	= 0
 	
@@ -79,20 +78,20 @@ ClassMethod save(data As %Library.DynamicArray, match As %Integer) As %Status
 	}
 
 	If match = 0 {
+		set newLine.matchStatus = 0
 		set newLine.errorStatus = 0
 		set newLine.errorMessage = 0
-		set newLine.StatutRapprocherCB = 0
 	}
 
 	If match > 1 {
+		set newLine.matchStatus = 0
 		set newLine.errorStatus = 2
 		set newLine.errorMessage = "Plusieurs demandes trouvées"
-		set newLine.matchStatus = 0
 	}
 	
 	set tSC = line.%Save()
 
-	If 'tSC quit 0
+	If 'tSC quit tSC
 
 	quit newLine.%Id()
 }
@@ -110,7 +109,7 @@ Storage Default
 <Value>idEaiForex</Value>
 </Value>
 <Value name="4">
-<Value>fileName</Value>
+<Value>confFileName</Value>
 </Value>
 <Value name="5">
 <Value>contrat</Value>

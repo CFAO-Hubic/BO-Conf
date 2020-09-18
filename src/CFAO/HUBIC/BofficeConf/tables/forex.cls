@@ -5,7 +5,7 @@ Property idForex As %String [ SqlColumnNumber = 2 ];
 
 // IDforex
 
-Property fileName As %String(MAXLEN = 2000) [ SqlColumnNumber = 3 ];
+Property forexFileName As %String(MAXLEN = 2000) [ SqlColumnNumber = 3 ];
 
 Property confFileName As %String(MAXLEN = 300) [ SqlColumnNumber = 4 ];
 
@@ -93,23 +93,23 @@ Property emailDate As %String [ SqlColumnNumber = 30 ];
 
 Property contrat As %String [ SqlColumnNumber = 31 ];
 
-ClassMethod match(idEaiForex As %String, match As %Integer, confFileName As %String, contrat As %String) As %Status
+ClassMethod match(data As %Library.DynamicArray, match As %Integer) As %Status
 {
-	if IdEAIForex = "" quit 0
+	if data.idEaiForex = "" quit 0
 
 	if match {
-		set line = ..%OpenId(idEaiForex)
+		set line = ..%OpenId(data.idEaiForex)
 		set line.matchStatus = 1
 		set line.validation = "AUTO"
 		set line.matchDate = $ZDATETIME($h, 3)
 
 		set separator = ""
 		if line.confFileName set separator = " | "
-		set line.confFileName = line.confFileName _ separator _ $Replace($Piece(confFileName,".",1) _ ".pdf"," ","_")
+		set line.confFileName = line.confFileName _ separator _ $Replace($Piece(data.confFileName,".",1) _ ".pdf"," ","_")
 
 		set separator = ""
 		if line.contrat set separator = " | "
-		set line.contrat = line.contrat _ separator _ contrat
+		set line.contrat = line.contrat _ separator _ data.contrat
 	}
 
 	if match = 9999 set line.validation = "Premier" // Cas particulier pour les PRORO SPOT et TERME
@@ -131,7 +131,7 @@ Storage Default
 <Value>idForex</Value>
 </Value>
 <Value name="3">
-<Value>fileName</Value>
+<Value>forexFileName</Value>
 </Value>
 <Value name="4">
 <Value>confFileName</Value>

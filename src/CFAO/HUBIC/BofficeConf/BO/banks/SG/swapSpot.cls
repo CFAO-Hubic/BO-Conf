@@ -1,0 +1,105 @@
+Class CFAO.HUBIC.BofficeConf.BO.banks.SG.swapSpot Extends CFAO.HUBIC.BofficeConf.BO.banks.masterClass
+{
+
+Parameter INVOCATION = "Queue";
+
+Method saveAndCheckMatch(pRequest As %Stream.FileCharacter, Output pResponse As CFAO.HUBIC.BofficeConf.messages.checkBankMsg) As %Status
+{
+	set data = {}
+	set data.bank = "SG"
+	set data.confType = "SWAP Spot"
+
+	set i = 0
+	set lineBuyed = 0
+	set lineSelled = 0
+
+	set pResponse = ##class(CFAO.HUBIC.BofficeConf.messages.checkBankMsg).%New()
+	set pResponse.bank = data.bank
+
+	do pRequest.Rewind()
+
+	// Read the txt file (converted from pdf) to find the relevant informations
+	while 'pRequest.AtEnd {
+		set i = i + 1
+		set line = pRequest.ReadLine()
+
+		If i = 1 {
+			set data.confFileName = line
+		}
+
+		if $Find(line,"Ref SG de Transaction") {
+			set data.contrat = $replace($piece(line,":",2)," ","")
+			set data.opeRef = $replace($piece(line,":",2)," ","")
+		}
+
+		if $Find(line, "Date de Conclusion") {
+			Set data.tradeDate =  ##class(CFAO.HUBIC.Outils).convertTextDate($piece(line,": ",2))
+		}
+
+		// Spot
+		if line = "Patte court terme du swap" {	
+			Set lineBuyed = i + 2
+			Set lineSelled = i + 1
+			Set lineRate = i + 3
+			Set lineValueDate = i + 4
+		}
+
+		if i = lineBuyed {
+			Set buyed = $replace($piece(line,":",2)," ","")
+			Set data.amountBuy = $extract(buyed,1,*-3)
+			Set data.deviseBuy = $extract(buyed,*-2,*)
+		}
+
+		if i = lineSelled {
+			Set selled = $replace($piece(line,":",2)," ","")
+			Set data.amountSell = $extract(NousVendonsC,1,*-3)
+			Set data.deviseSell = $extract(NousVendonsC,*-2,*)
+		}
+
+		if i = lineRate {
+			Set data.spot = $replace($piece(line,":",2)," ","") * 1
+			if $Extract(data.spot,1,1)="."{
+				set data.spot = "0" _ dataSpot.spot
+			}
+		}
+
+		if i = lineValueDate {
+			Set data.valueDate =  ##class(CFAO.HUBIC.Outils).convertTextDate($piece(line,": ",2))
+		}
+	}
+
+    // Check if every requiered fields are provided
+    If '..hasRequiredField(data, 1) {
+	    set pResponse.status = 0
+	    set pResponse.message = "SGLEVEE - Valeur de rapprochement spot manquante"
+	    quit $$$OK
+    }
+
+	set resultMatch = ..match(data)
+
+	if resultMatch.%IsDefined(0) {
+		set data.idForex	= resultMatch.%Get(0).idForex
+		set data.idEaiForex	= resultMatch.%Get(0).idEaiForex
+		set match 			= resultMatch.%Get(0).match
+	} else {
+		set match = 0
+	}
+
+	set tSC = ..save(data, match)
+
+	set pResponse.status = tSC.status
+	set pResponse.message = tSC.message
+
+	quit $$$OK
+}
+
+XData MessageMap
+{
+<MapItems>
+	<MapItem MessageType="%Stream.FileCharacter"> 
+		<Method>saveAndCheckMatch</Method>
+	</MapItem>
+</MapItems>
+}
+
+}

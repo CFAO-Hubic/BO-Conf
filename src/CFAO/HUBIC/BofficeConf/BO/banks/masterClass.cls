@@ -116,6 +116,8 @@ Method hasRequiredField(data As %Library.DynamicObject, type As %Integer) As %Bo
 			return 1
 		}
 	}
+
+	return 0
 }
 
 }

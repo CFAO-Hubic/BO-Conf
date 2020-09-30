@@ -7,7 +7,7 @@ Method saveAndCheckMatch(pRequest As %Stream.FileCharacter, Output pResponse As 
 {
 	set data = {}
 	set data.bank = "SG"
-	set data.confType = "MEP Spot"
+	set data.confType = "PRORO"
 
 	set i = 0
 	set lineBuyed = ""
@@ -69,7 +69,7 @@ Method saveAndCheckMatch(pRequest As %Stream.FileCharacter, Output pResponse As 
 	}
 
     // Check if every requiered fields are provided
-    If 'data.valueDate || 'data.amountBuy || 'data.deviseBuy || 'data.amountSell || 'data.deviseSell || 'data.spot {
+    If '..hasRequiredField(data, 2) {
 	    set pResponse.status = 0
 	    set pResponse.message = "SGLEVEE - Valeur de rapprochement manquante"
 	    quit $$$OK
@@ -77,9 +77,11 @@ Method saveAndCheckMatch(pRequest As %Stream.FileCharacter, Output pResponse As 
 
 	set resultMatch = ..match(data)
 
-	set data.idForex	= resultMatch.idForex
-	set data.idEaiForex	= resultMatch.idEaiForex
-	set match 			= resultMatch.match
+	if resultMatch.%IsDefined(0) {
+		set data.idForex	= resultMatch.%Get(0).idForex
+		set data.idEaiForex	= resultMatch.%Get(0).idEaiForex
+		set match 			= resultMatch.%Get(0).match
+	}
 
 	set pResponse = ..save(data, match)
 

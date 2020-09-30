@@ -3,7 +3,7 @@ Class CFAO.HUBIC.BofficeConf.BO.banks.SG.mepSpot Extends CFAO.HUBIC.BofficeConf.
 
 Parameter INVOCATION = "Queue";
 
-Method saveAndCheckMatch(pRequest As %Stream.FileCharacter, Output pResponse As Ens.StringResponse) As %Status
+Method saveAndCheckMatch(pRequest As %Stream.FileCharacter, Output pResponse As CFAO.HUBIC.BofficeConf.messages.checkBankMsg) As %Status
 {
 	set data = {}
 	set data.bank = "SG"
@@ -70,8 +70,9 @@ Method saveAndCheckMatch(pRequest As %Stream.FileCharacter, Output pResponse As 
 		}
 	}
 
+
     // Check if every requiered fields are provided
-    If 'data.valueDate || 'data.amountBuy || 'data.deviseBuy || 'data.amountSell || 'data.deviseSell || 'data.spot {
+    If '..hasRequiredField(data, 0) {
 	    set pResponse.status = 0
 	    set pResponse.message = "SGMEP - Valeur de rapprochement manquante"
 	    quit $$$OK
@@ -79,11 +80,18 @@ Method saveAndCheckMatch(pRequest As %Stream.FileCharacter, Output pResponse As 
 
 	set resultMatch = ..match(data)
 
-	set data.idForex	= resultMatch.idForex
-	set data.idEaiForex	= resultMatch.idEaiForex
-	set match 			= resultMatch.match
+	if resultMatch.%IsDefined(0) {
+		set data.idForex	= resultMatch.%Get(0).idForex
+		set data.idEaiForex	= resultMatch.%Get(0).idEaiForex
+		set match 			= resultMatch.%Get(0).match
+	} else {
+		set match = 0
+	}
 
-	set pResponse = ..save(data, match)
+	set tSC = ..save(data, match)
+
+	set pResponse.status = tSC.status
+	set pResponse.message = tSC.message
 
 	quit $$$OK
 }

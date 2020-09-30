@@ -3,7 +3,7 @@ Class CFAO.HUBIC.BofficeConf.BO.banks.masterClass Extends Ens.BusinessOperation
 
 Parameter INVOCATION = "Queue";
 
-Method save(data As %Library.DynamicObject, match As %Integer) As %Status
+Method save(data As %Library.DynamicObject, match As %Integer) As %Library.DynamicObject
 {
 	set tSC = ##class(CFAO.HUBIC.BofficeConf.tables.bank).save(data, match)
 
@@ -42,40 +42,80 @@ Method save(data As %Library.DynamicObject, match As %Integer) As %Status
 
 Method match(data As %Library.DynamicObject) As %Library.DynamicObject
 {
-	if data.tradeDate 	= "" {set tradeDate = ""}		else {set tradeDate		= " AND tradeDate = " _ data.tradeDate}
-	if data.valueDate 	= "" {set valueDate = ""}		else {set valueDate 	= " AND valueDate = " _ data.valueDate}
-	if data.maturityDate= "" {set maturityDate = ""}	else {set maturityDate	= " AND maturityDate = " _ data.maturityDate}
-	if data.bank		= "" {set bank = ""} 			else {set bank			= " AND bank = " _ data.bank}
-	if data.deviseBuy 	= "" {set deviseBuy = ""}		else {set deviseBuy 	= " AND deviseBuy = " _ data.deviseBuy}
-	if data.deviseSell 	= "" {set deviseSell = ""}		else {set deviseSell 	= " AND deviseSell = " _ data.deviseSell}
-	if data.amountBuy 	= "" {set amountBuy = ""}		else {set amountBuy 	= " AND amountBuy = " _ data.amountBuy}
-	if data.amountSell 	= "" {set amountSell = ""}		else {set amountSell 	= " AND amountSell = " _ data.amountSell}
-	if data.term 		= "" {set term = ""}			else {set term			= " AND term = " _ data.term}
-	if data.spot 		= "" {set spot = ""}			else {set spot			= " AND spot = " _ data.spot}
-	if data.sens 		= "" {set sens = ""}			else {set sens			= " AND sens = " _ data.sens}
-	if data.confType	= "" {set confType = ""}		else {set confType		= " AND confType LIKE '%" _ data.confType_"%'"}
+	if data.valueDate 	 = "" {set valueDate 	= ""}	else {set valueDate 	= " AND valueDate = " _ data.valueDate}
+	if data.maturityDate = "" {set maturityDate	= ""}	else {set maturityDate	= " AND maturityDate = " _ data.maturityDate}
+	if data.term 		 = "" {set term			= ""}	else {set term			= " AND term = " _ data.term}
+	if data.spot 		 = "" {set spot			= ""}	else {set spot			= " AND spot = " _ data.spot}
 
 	set request =
 		"SELECT "
 			_"COUNT(*) AS ""match"","
 			_"idForex,"
-			_"ID AS ""idEaiForex"","
-			_"confType "
+			_"ID AS ""idEaiForex"" "
 		_"FROM CFAO_HUBIC_BofficeConf_tables.forex "
 		_"WHERE "
 			_"matchStatus = 0"
-			_tradeDate
+			_" AND tradeDate = '"_data.tradeDate_"'"
+			_" AND bank = '"_data.bank_"'"
+			_" AND deviseBuy = '"_data.deviseBuy_"'"
+			_" AND deviseSell = '"_data.deviseSell_"'"
+			_" AND amountBuy = '"_data.amountBuy_"'"
+			_" AND amountSell = '"_data.amountSell_"'"
 			_valueDate
 			_maturityDate
-			_bank
-			_deviseBuy
-			_amountBuy
 			_term
 			_spot
-			_sens
-			_confType
-	
-	return ##class(CFAO.PARAM.PORTAL.utils).query(request).%Get(0)
+
+	return ##class(CFAO.PARAM.PORTAL.utils).query(request)
+}
+
+/// Available type
+/// 0: MEP
+/// 1: SPOT
+/// 2: SWAP, PRORO, LEVEE
+Method hasRequiredField(data As %Library.DynamicObject, type As %Integer) As %Boolean
+{
+	if data.tradeDate	= ""
+	|| data.amountBuy	= ""
+	|| data.deviseBuy	= ""
+	|| data.amountSell	= ""
+	|| data.deviseSell	= ""
+	|| data.bank 		= ""
+	{
+		return 0
+	}
+
+	if type = 0 {
+		if 'data.maturityDate	= ""
+		|| 'data.term			= ""
+		{
+			return 0
+		} else {
+			return 1
+		}
+	}
+
+	if type = 1 {
+		if 'data.valueDate	= ""
+		|| 'data.spot 		= ""
+		{
+			return 0
+		} else {
+			return 1
+		}
+	}
+
+	if type = 2 {
+		if 'data.valueDate		= ""
+		|| 'data.maturityDate	= ""
+		|| 'data.spot			= ""
+		|| 'data.term			= ""
+		{
+			return 0
+		} else {
+			return 1
+		}
+	}
 }
 
 }

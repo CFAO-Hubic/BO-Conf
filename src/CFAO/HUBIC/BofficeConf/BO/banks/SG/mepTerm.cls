@@ -1,11 +1,11 @@
 Class CFAO.HUBIC.BofficeConf.BO.banks.SG.mepTerm Extends CFAO.HUBIC.BofficeConf.BO.banks.masterClass
 {
 
-Method saveAndCheckMatch(pRequest As %Stream.FileCharacter, Output pResponse As Ens.StringResponse) As %Status
+Method saveAndCheckMatch(pRequest As %Stream.FileCharacter, Output pResponse As CFAO.HUBIC.BofficeConf.messages.checkBankMsg) As %Status
 {
 	set data = {}
 	set data.bank = "SG"
-	set data.confType = "MEP Spot"
+	set data.confType = "MEP Term"
 	set firstLine = 1
 
 	set pResponse = ##class(CFAO.HUBIC.BofficeConf.messages.checkBankMsg).%New()
@@ -99,7 +99,6 @@ Method saveAndCheckMatch(pRequest As %Stream.FileCharacter, Output pResponse As 
 		    AND deviseBuy	= :deviseBuy
 		    AND amountBuy	= :amountBuy
 		    AND term		= :term
-		    AND sens		= :sens
 		    AND matchStatus	= 0
 	)
 
@@ -123,7 +122,6 @@ Method saveAndCheckMatch(pRequest As %Stream.FileCharacter, Output pResponse As 
 			    AND deviseBuy	= :deviseBuy
 			    AND amountBuy	= :amountBuy
 			    AND term		= :term
-			    AND sens		= :sens
 			    AND matchStatus	= 0
 			    AND confType like '%MEP%'
 	    )

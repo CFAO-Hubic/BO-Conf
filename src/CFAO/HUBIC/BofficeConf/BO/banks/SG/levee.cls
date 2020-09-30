@@ -3,11 +3,11 @@ Class CFAO.HUBIC.BofficeConf.BO.banks.SG.levee Extends CFAO.HUBIC.BofficeConf.BO
 
 Parameter INVOCATION = "Queue";
 
-Method saveAndCheckMatch(pRequest As %Stream.FileCharacter, Output pResponse As Ens.StringResponse) As %Status
+Method saveAndCheckMatch(pRequest As %Stream.FileCharacter, Output pResponse As CFAO.HUBIC.BofficeConf.messages.checkBankMsg) As %Status
 {
 	set data = {}
 	set data.bank = "SG"
-	set data.confType = "MEP Spot"
+	set data.confType = "LEVEE"
 
 	set i = 0
 	set lineBuyed = ""

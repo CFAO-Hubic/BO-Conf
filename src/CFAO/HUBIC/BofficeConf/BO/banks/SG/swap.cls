@@ -3,12 +3,13 @@ Class CFAO.HUBIC.BofficeConf.BO.banks.SG.swap Extends CFAO.HUBIC.BofficeConf.BO.
 
 Parameter INVOCATION = "Queue";
 
-Method saveAndCheckMatch(pRequest As %Stream.FileCharacter, Output pResponse As Ens.StringResponse) As %Status
+Method saveAndCheckMatch(pRequest As %Stream.FileCharacter, Output pResponse As CFAO.HUBIC.BofficeConf.messages.checkBankMsg) As %Status
 {
 	set dataTerm = {}
 	set dataSpot = {}
 	set (dataTerm.bank, dataSpot.bank) = "SG"
-	set (dataTerm.confType, dataSpot.confType) = "MEP Spot"
+	set dataSpot.confType = "SWAP Spot"
+	set dataTerm.confType = "SWAP Term"
 
 	set i = 0
 	set lineBuyed = ""

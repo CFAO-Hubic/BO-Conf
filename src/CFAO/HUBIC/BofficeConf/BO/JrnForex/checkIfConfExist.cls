@@ -37,12 +37,12 @@ Method EnregEtRapproche(pRequest As CFAO.HUBIC.BofficeConf.tables.forexBatch, Ou
 		set maturityDate= pRequest.forexRecords.GetAt(key).maturityDate
 		set valueDate	= pRequest.forexRecords.GetAt(key).valueDate
 		set deviseBuy	= pRequest.forexRecords.GetAt(key).deviseBuy
+		set deviseSell	= pRequest.forexRecords.GetAt(key).deviseSell
 		set amountBuy	= pRequest.forexRecords.GetAt(key).amountBuy
+		set amountSell	= pRequest.forexRecords.GetAt(key).amountSell
 		set term		= pRequest.forexRecords.GetAt(key).term
 		set spot		= pRequest.forexRecords.GetAt(key).spot
-		set sens		= pRequest.forexRecords.GetAt(key).sens
 		set confType	= pRequest.forexRecords.GetAt(key).confType
-		set deviseSell	= pRequest.forexRecords.GetAt(key).deviseSell
 
 		set (
 			match,
@@ -70,7 +70,7 @@ Method EnregEtRapproche(pRequest As CFAO.HUBIC.BofficeConf.tables.forexBatch, Ou
 		    		SELECT
 		    			COUNT(*),
 		    			ID,
-		    			fileName,
+		    			confFileName,
 		    			contrat 
 		    		INTO
 		    			:match,
@@ -84,7 +84,6 @@ Method EnregEtRapproche(pRequest As CFAO.HUBIC.BofficeConf.tables.forexBatch, Ou
 				    	AND deviseBuy	= :deviseBuy
 				    	AND amountBuy	= :amountBuy
 				    	AND spot		= :spot
-				    	AND sens		= :sens 
 				    	AND matchStatus	= 0
 				    	AND confType LIKE '%MEP%'
 		    	)
@@ -94,7 +93,7 @@ Method EnregEtRapproche(pRequest As CFAO.HUBIC.BofficeConf.tables.forexBatch, Ou
 		    		SELECT
 		    			COUNT(*),
 		    			ID,
-		    			fileName,
+		    			confFileName,
 		    			contrat 
 		    		INTO
 		    			:match,
@@ -108,7 +107,6 @@ Method EnregEtRapproche(pRequest As CFAO.HUBIC.BofficeConf.tables.forexBatch, Ou
 				    	AND deviseBuy	= :deviseBuy
 				    	AND amountBuy	= :amountBuy
 				    	AND spot		= :spot
-				    	AND sens		= :sens
 				    	AND matchStatus = 0
 		    	)
 			}
@@ -122,7 +120,7 @@ Method EnregEtRapproche(pRequest As CFAO.HUBIC.BofficeConf.tables.forexBatch, Ou
 		    		SELECT
 		    			COUNT(*),
 		    			ID,
-		    			fileName,
+		    			confFileName,
 		    			contrat 
 		    		INTO
 		    			:matchSpot,
@@ -136,7 +134,6 @@ Method EnregEtRapproche(pRequest As CFAO.HUBIC.BofficeConf.tables.forexBatch, Ou
 				    	AND deviseBuy	= :deviseBuy
 				    	AND amountBuy	= :amountBuy
 				    	AND spot		= :spot
-				    	AND sens		= :sens
 				    	AND matchStatus	= 0
 				    	AND	confType LIKE '%SWAP%'
 		    	)
@@ -146,7 +143,7 @@ Method EnregEtRapproche(pRequest As CFAO.HUBIC.BofficeConf.tables.forexBatch, Ou
 			    	SELECT
 			    		COUNT(*),
 		    			ID,
-			    		fileName,
+			    		confFileName,
 			    		contrat 
 			    	INTO
 			    		:matchTerm,
@@ -160,7 +157,6 @@ Method EnregEtRapproche(pRequest As CFAO.HUBIC.BofficeConf.tables.forexBatch, Ou
 				    	AND deviseBuy	= :deviseBuy
 				    	AND amountBuy	= :amountBuy
 				    	AND spot		= :term
-				    	AND sens		= :sens 
 				    	AND matchStatus	= 0
 				    	AND confType LIKE '%SWAP%'
 		    	)
@@ -171,7 +167,7 @@ Method EnregEtRapproche(pRequest As CFAO.HUBIC.BofficeConf.tables.forexBatch, Ou
 		    		SELECT
 		    			COUNT(*),
 		    			ID,
-		    			fileName,
+		    			confFileName,
 		    			contrat 
 		    		INTO
 		    			:matchSpot,
@@ -185,7 +181,6 @@ Method EnregEtRapproche(pRequest As CFAO.HUBIC.BofficeConf.tables.forexBatch, Ou
 				    	AND deviseBuy	= :deviseBuy
 				    	AND amountBuy	= :amountBuy
 				    	AND spot		= :spot
-				    	AND sens		= :sens
 				    	AND matchStatus	= 0
 		    	)
 
@@ -194,7 +189,7 @@ Method EnregEtRapproche(pRequest As CFAO.HUBIC.BofficeConf.tables.forexBatch, Ou
 					SELECT
 						COUNT(*),
 		    			ID,
-						fileName,
+						confFileName,
 						contrat 
 					INTO
 						:matchTerm,
@@ -208,7 +203,6 @@ Method EnregEtRapproche(pRequest As CFAO.HUBIC.BofficeConf.tables.forexBatch, Ou
 						AND deviseBuy	= :deviseBuy
 						AND amountBuy	= :amountBuy
 						AND term		= :term
-						AND sens		= :sens 
 						AND matchStatus	= 0
 		    	)
 			}
@@ -231,7 +225,7 @@ Method EnregEtRapproche(pRequest As CFAO.HUBIC.BofficeConf.tables.forexBatch, Ou
 		    	SELECT
 		    		COUNT(*),
 		    		ID,
-		    		fileName,
+		    		confFileName,
 		    		contrat
 	    		INTO
 	    			:match,
@@ -245,7 +239,6 @@ Method EnregEtRapproche(pRequest As CFAO.HUBIC.BofficeConf.tables.forexBatch, Ou
 			    	AND deviseBuy	= :deviseBuy
 			    	AND amountBuy	= :amountBuy
 			    	AND spot 		= :spot
-			    	AND sens		= :sens
 			    	AND matchStatus = 0
 	    	)
 
@@ -255,7 +248,7 @@ Method EnregEtRapproche(pRequest As CFAO.HUBIC.BofficeConf.tables.forexBatch, Ou
 	    		SELECT
 	    			COUNT(*),
 		    		ID,
-	    			fileName,
+	    			confFileName,
 	    			contrat
 	    		INTO
 	    			:match,
@@ -269,7 +262,6 @@ Method EnregEtRapproche(pRequest As CFAO.HUBIC.BofficeConf.tables.forexBatch, Ou
 			    	AND deviseBuy	= :deviseBuy
 			    	AND amountBuy	= :amountBuy
 			    	AND spot		= :term
-			    	AND sens		= :sens
 			    	AND matchStatus	= 0
 	    	)
 		}
@@ -335,7 +327,7 @@ Method EnregEtRapproche(pRequest As CFAO.HUBIC.BofficeConf.tables.forexBatch, Ou
 
 	set pResponse = ##class(CFAO.HUBIC.BofficeConf.messages.checkForexMsg).%New()
 
-	if errorsForex.%Size() || errorsForex.%Size() {
+	if errorsForex.%Size() {
 		set pResponse.forex = errorsForex
 		set pResponse.bank = errorsBank
 		set pResponse.status = 1

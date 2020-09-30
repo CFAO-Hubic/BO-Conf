@@ -54,19 +54,19 @@ ClassMethod save(data As %Library.DynamicArray, match As %Integer) As %Status
 	set newLine 			= ..%New()
 	set newLine.confFileName	= $Piece(data.confFileName,".",1)
 	set newLine.contrat		= data.contrat
-	set newLine.tradeDate	= data.tradeDate // -----------------
-	set newLine.valueDate	= data.valueDate // -----------------
-	set newLine.maturityDate= data.maturityDate // -----------------
-	set newLine.spot		= data.spot // -----------------
-	set newLine.term		= data.term // -----------------
-	set newLine.amountBuy	= data.amountBuy // -----------------
-	set newLine.amountSell	= data.amountSell // -----------------
-	set newLine.deviseBuy	= data.deviseBuy // -----------------
-	set newLine.deviseSell	= data.deviseSell // -----------------
-	set newLine.bank		= data.bank // -----------------
-	set newLine.confType	= data.confType // -----------------
+	set newLine.tradeDate	= data.tradeDate
+	set newLine.valueDate	= data.valueDate
+	set newLine.maturityDate= data.maturityDate
+	set newLine.spot		= data.spot
+	set newLine.term		= data.term
+	set newLine.amountBuy	= data.amountBuy
+	set newLine.amountSell	= data.amountSell
+	set newLine.deviseBuy	= data.deviseBuy
+	set newLine.deviseSell	= data.deviseSell
+	set newLine.bank		= data.bank
+	set newLine.confType	= data.confType
 	set newLine.matchDate	= data.matchDate
-	set newLine.emailStatus	= 0
+	set newLine.emailStatus	= ""
 	set newLine.archived	= 0
 	
 	If match = 1 {
@@ -89,7 +89,7 @@ ClassMethod save(data As %Library.DynamicArray, match As %Integer) As %Status
 		set newLine.errorMessage = "Plusieurs demandes trouvées"
 	}
 	
-	set tSC = line.%Save()
+	set tSC = newLine.%Save()
 
 	If 'tSC quit tSC
 

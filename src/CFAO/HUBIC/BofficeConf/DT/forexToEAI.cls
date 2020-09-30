@@ -12,7 +12,7 @@ XData DTL [ XMLNamespace = "http://www.intersystems.com/dtl" ]
 <transform sourceClass='CFAO.HUBIC.BofficeConf.recordMap.JournalForex.Batch' targetClass='CFAO.HUBIC.BofficeConf.tables.forexBatch' create='new' language='objectscript' >
 <annotation>Enregistrement des données issus du journal Forex pour le flux Bo Conf</annotation>
 <foreach property='source.Records()' key='k1' >
-<assign value='source.Records.(k1).%Source' property='target.forexRecords.(k1).fileName' action='set' />
+<assign value='source.Records.(k1).%Source' property='target.forexRecords.(k1).forexFileName' action='set' />
 <assign value='source.Records.(k1).IDforex' property='target.forexRecords.(k1).idForex' action='set' />
 <assign value='..SubString(source.Records.(k1).TRADEDATE,1,10)' property='target.forexRecords.(k1).tradeDate' action='set' />
 <assign value='source.Records.(k1).CPTYSHORTNAME' property='target.forexRecords.(k1).bank' action='set' />

@@ -23,7 +23,7 @@ Method saveAndCheckMatch(pRequest As %Stream.FileCharacter, Output pResponse As 
 	// Getting the identifier to find the line with the confirmation data
 	while 'pRequest.AtEnd {
 		if $Find(line,"La date de levée anticipée pour toutes les Opérations est fixée au") > 0 {
-			Set date = $piece($piece(line,"au ",2)," (",1)
+			set date = $piece($piece(line,"au ",2)," (",1)
 			set idFx = ##class(CFAO.HUBIC.Outils).convertTextDate(date, "/", 3)
 		}
 	}
@@ -42,7 +42,7 @@ Method saveAndCheckMatch(pRequest As %Stream.FileCharacter, Output pResponse As 
 
 
 		if $Find(line ,"Paiement à SOCIETE GENERALE") > 0 {
-			Set lineBuyed = i + 1
+			set lineBuyed = i + 1
 		}
 
 		if lineBuyed = i {
@@ -55,33 +55,40 @@ Method saveAndCheckMatch(pRequest As %Stream.FileCharacter, Output pResponse As 
 		}
 
 		If lineSelled = i {
-			Set data.amountSell =  $piece(line," ",1)
-			Set data.deviseSell = $piece(line," ",2)
+			set data.amountSell =  $piece(line," ",1)
+			set data.deviseSell = $piece(line," ",2)
 		}
 
-		If $Find(LaLigne,IdentifiantFX) && $Find(LaLigne,LeMontant) {
-			Set data.contrat	= $piece(LaLigne," ",1)
-			Set data.opeRef		= $piece(LaLigne," ",1)
-			Set data.spot		= $piece(LaLigne," ",7)
-			Set data.tradeDate	= $piece(LaLigne," ",8)
-			Set data.valueDate	= $piece(LaLigne," ",9)
+		If $Find(line,idFX) {
+			set data.contrat	= $piece(line," ",1)
+			set data.opeRef		= $piece(line," ",1)
+			set data.spot		= $piece(line," ",7)
+			set data.tradeDate	= $piece(line," ",8)
+			set data.valueDate	= $piece(line," ",9)
 		}
 	}
 
     // Check if every requiered fields are provided
-    If 'data.valueDate || 'data.amountBuy || 'data.deviseBuy || 'data.amountSell || 'data.deviseSell || 'data.spot {
+    If '..hasRequiredField(data, 2) {
 	    set pResponse.status = 0
-	    set pResponse.message = "SGLEVEE - Valeur de rapprochement manquante"
+	    set pResponse.message = "SGSWAP - Valeur de rapprochement terme manquante"
 	    quit $$$OK
     }
 
 	set resultMatch = ..match(data)
 
-	set data.idForex	= resultMatch.idForex
-	set data.idEaiForex	= resultMatch.idEaiForex
-	set match 			= resultMatch.match
+	if resultMatch.%IsDefined(0) {
+		set data.idForex	= resultMatch.%Get(0).idForex
+		set data.idEaiForex	= resultMatch.%Get(0).idEaiForex
+		set match 			= resultMatch.%Get(0).match
+	} else {
+		set match = 0
+	}
 
-	set pResponse = ..save(data, match)
+	set resultSave = ..save(data, match)
+
+	set pResponse.status = resultSave.status
+	set pResponse.message = resultSave.message
 
 	quit $$$OK
 }

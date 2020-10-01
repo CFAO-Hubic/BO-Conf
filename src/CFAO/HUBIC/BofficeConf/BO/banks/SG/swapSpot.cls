@@ -69,9 +69,9 @@ Method saveAndCheckMatch(pRequest As %Stream.FileCharacter, Output pResponse As 
 	}
 
     // Check if every requiered fields are provided
-    If '..hasRequiredField(data, 1) {
+    If '..hasRequiredField(data, 2) {
 	    set pResponse.status = 0
-	    set pResponse.message = "SGLEVEE - Valeur de rapprochement spot manquante"
+	    set pResponse.message = "SGSWAP - Valeur de rapprochement terme manquante"
 	    quit $$$OK
     }
 
@@ -85,10 +85,10 @@ Method saveAndCheckMatch(pRequest As %Stream.FileCharacter, Output pResponse As 
 		set match = 0
 	}
 
-	set tSC = ..save(data, match)
+	set resultSave = ..save(data, match)
 
-	set pResponse.status = tSC.status
-	set pResponse.message = tSC.message
+	set pResponse.status = resultSave.status
+	set pResponse.message = resultSave.message
 
 	quit $$$OK
 }

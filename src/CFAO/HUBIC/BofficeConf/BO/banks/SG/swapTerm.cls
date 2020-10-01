@@ -1,20 +1,17 @@
-Class CFAO.HUBIC.BofficeConf.BO.banks.SG.swap Extends CFAO.HUBIC.BofficeConf.BO.banks.masterClass
+Class CFAO.HUBIC.BofficeConf.BO.banks.SG.swapTerm Extends CFAO.HUBIC.BofficeConf.BO.banks.masterClass
 {
 
 Parameter INVOCATION = "Queue";
 
 Method saveAndCheckMatch(pRequest As %Stream.FileCharacter, Output pResponse As CFAO.HUBIC.BofficeConf.messages.checkBankMsg) As %Status
 {
-	set dataTerm = {}
-	set dataSpot = {}
-	set (dataTerm.bank, dataSpot.bank) = "SG"
-	set dataSpot.confType = "SWAP Spot"
-	set dataTerm.confType = "SWAP Term"
+	set data = {}
+	set data.bank = "SG"
+	set data.confType = "SWAP Term"
 
 	set i = 0
 	set lineBuyed = ""
 	set lineSelled = ""
-	set idFX = 5
 
 	set pResponse = ##class(CFAO.HUBIC.BofficeConf.messages.checkBankMsg).%New()
 	set pResponse.bank = data.bank
@@ -36,93 +33,62 @@ Method saveAndCheckMatch(pRequest As %Stream.FileCharacter, Output pResponse As 
 		}
 
 		if $Find(line, "Date de Conclusion") {
-			Set dataTerm.tradeDate =  ##class(CFAO.HUBIC.Outils).convertTextDate($piece(line,": ",2))
-			Set dataSpot.tradeDate =  ##class(CFAO.HUBIC.Outils).convertTextDate($piece(line,": ",2))
-		}
-
-		// Spot
-		if line = "Patte court terme du swap" {	
-			Set lineSpotBuy = i + 2
-			Set lineSpotSelled  = i + 1
-			Set lineSpotRate  = i + 3
-			Set lineSpotValueDate   = i + 4		   		
-		}
-
-		if i = lineSpotBuy {
-			Set buyed = $replace($piece(line,":",2)," ","")
-			Set dataSpot.amountBuy = $extract(buyed,1,*-3)
-			Set dataSpot.deviseBuy = $extract(buyed,*-2,*)
-		}
-
-		if i = lineSpotSelled {
-			Set selled = $replace($piece(line,":",2)," ","")
-			Set dataSpot.amountSell = $extract(NousVendonsC,1,*-3)
-			Set dataSpot.deviseSell = $extract(NousVendonsC,*-2,*)
-		}
-
-		if i = lineSpotRate {
-			Set dataSpot.spot = $replace($piece(line,":",2)," ","") * 1
-			if $Extract(dataSpot.spot,1,1)="."{
-				set dataSpot.spot = "0" _ dataSpot.spot
-			}
-		}
-
-		if i = lineSpotValueDate {
-			Set dataSpot.valueDate =  ##class(CFAO.HUBIC.Outils).convertTextDate($piece(line,": ",2))
+			set data.tradeDate =  ##class(CFAO.HUBIC.Outils).convertTextDate($piece(line,": ",2))
 		}
 
 		// Term
-		if $Find(line, dataSpot.contrat) {
-			Set lineTermeBuy = i + 2
-			Set lineTermSelled  = i + 1
-			Set lineTermRate  = i + 3
-			Set lineTermValueDate   = i + 4
+		if $Find(line, data.contrat) {
+			set lineBuyed = i + 2
+			set lineSelled = i + 1
+			set lineRate = i + 3
+			set lineValueDate = i + 4
 		}
 
-		if i = lineTermeBuy {
-			Set buyed = $replace($piece(line,":",2)," ","")
-			Set dataTerm.amountBuy = $extract(buyed,1,*-3)
-			Set dataTerm.deviseBuy = $extract(buyed,*-2,*)
+		if i = lineBuyed {
+			set buyed = $replace($piece(line,":",2)," ","")
+			set data.amountBuy = $extract(buyed,1,*-3)
+			set data.deviseBuy = $extract(buyed,*-2,*)
 		}
 
-		if i = lineTermSelled {
-			Set selled = $replace($piece(line,":",2)," ","")
-			Set dataTerm.amountSell = $extract(NousVendonsC,1,*-3)
-			Set dataTerm.deviseSell = $extract(NousVendonsC,*-2,*)
+		if i = lineSelled {
+			set selled = $replace($piece(line,":",2)," ","")
+			set data.amountSell = $extract(NousVendonsC,1,*-3)
+			set data.deviseSell = $extract(NousVendonsC,*-2,*)
 		}
 
-		if i = lineTermRate {
-			Set dataTerm.spot = $replace($piece(line,":",2)," ","") * 1
-			if $Extract(dataTerm.spot,1,1)="."{
-				set dataTerm.spot = "0" _ dataTerm.spot
+		if i = lineRate {
+			set data.spot = $replace($piece(line,":",2)," ","") * 1
+			if $Extract(data.spot,1,1)="."{
+				set data.spot = "0" _ data.spot
 			}
 		}
 
-		if i = lineTermMaturityDate {
-			Set dataTerm.maturityDate =  ##class(CFAO.HUBIC.Outils).convertTextDate($piece(line,": ",2))
+		if i = lineMaturityDate {
+			set data.maturityDate =  ##class(CFAO.HUBIC.Outils).convertTextDate($piece(line,": ",2))
 		}
 	}
 
     // Check if every requiered fields are provided
-    If 'dataTerm.valueDate || 'dataTerm.amountBuy || 'dataTerm.deviseBuy || 'dataTerm.amountSell || 'dataTerm.deviseSell || 'dataTerm.spot {
+    If '..hasRequiredField(data, 2) {
 	    set pResponse.status = 0
-	    set pResponse.message = "SGLEVEE - Valeur de rapprochement terme manquante"
-	    quit $$$OK
-    }
-
-    If 'dataSpot.valueDate || 'dataSpot.amountBuy || 'dataSpot.deviseBuy || 'dataSpot.amountSell || 'dataSpot.deviseSell || 'dataSpot.spot {
-	    set pResponse.status = 0
-	    set pResponse.message = "SGLEVEE - Valeur de rapprochement spot manquante"
+	    set pResponse.message = "SGSWAP - Valeur de rapprochement terme manquante"
 	    quit $$$OK
     }
 
 	set resultMatch = ..match(data)
 
-	set data.idForex	= resultMatch.idForex
-	set data.idEaiForex	= resultMatch.idEaiForex
-	set match 			= resultMatch.match
+	if resultMatch.%IsDefined(0) {
+		set data.idForex	= resultMatch.%Get(0).idForex
+		set data.idEaiForex	= resultMatch.%Get(0).idEaiForex
+		set match 			= resultMatch.%Get(0).match
+	} else {
+		set match = 0
+	}
 
-	set pResponse = ..save(data, match)
+	set resultSave = ..save(data, match)
+
+	set pResponse.status = resultSave.status
+	set pResponse.message = resultSave.message
 
 	quit $$$OK
 }

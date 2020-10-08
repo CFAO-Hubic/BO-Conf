@@ -10,68 +10,86 @@ Method saveAndCheckMatch(pRequest As %Stream.FileCharacter, Output pResponse As 
 	set data.confType = "LEVEE"
 
 	set i = 0
-	set lineBuyed = ""
-	set lineSelled = ""
-	set idFX = ""
+
+	set (
+		line,
+		line1,
+		line2,
+		lineReceived,
+		linePaid,
+		lineInfos,
+		lineOpeIni,
+		lineLevee
+	) = ""
 
 	set pResponse = ##class(CFAO.HUBIC.BofficeConf.messages.checkBankMsg).%New()
 	set pResponse.bank = data.bank
 
 	do pRequest.Rewind()
 
-	// Read the txt file (converted from pdf) to find the relevant informations
-	// Getting the identifier to find the line with the confirmation data
-	while 'pRequest.AtEnd {
-		if $Find(line,"La date de levée anticipée pour toutes les Opérations est fixée au") > 0 {
-			set date = $piece($piece(line,"au ",2)," (",1)
-			set idFx = ##class(CFAO.HUBIC.Outils).convertTextDate(date, "/", 3)
-		}
-	}
-
-	if idFx = "" {
-	    set pResponse.status = 0
-	    set pResponse.message = "SGLEVEE - Impossible de trouver l'identifiant FX (identification de la ligne contenant les infos sur la conf)"
-	    quit $$$OK
-	}
-
-	do pRequest.Rewind()
-
 	while 'pRequest.AtEnd {
 		set i = i + 1
-		set line = pRequest.ReadLine()
 
+		// Store 3 last rows in order to read the line header of the matrice in the pdf
+		set line2 = line1
+		set line1 = line
+		set line  = pRequest.ReadLine()
 
-		if $Find(line ,"Paiement à SOCIETE GENERALE") > 0 {
-			set lineBuyed = i + 1
+		// Processed confFileName
+		If i = 1 {
+			set data.confFileName = line
 		}
 
-		if lineBuyed = i {
-			set data.amountBuy =  $piece(line," ",1)
-			set data.deviseBuy = $piece(line," ",2)
+		// First line of the matrice
+		if line2 _ " " _ line1 _ " " _ line = "Opération initiale avec modifications" {
+			set lineOpeIni = i + 1
 		}
 
-		if $Find(line ,"Paiement à CFAO") > 0 {
-			set lineSelled = i + 1
+		If i = lineOpeIni {
+			set data.contrat		=$p(line, " ", 1)
+			set data.reference		= data.contrat
+			set data.maturityDate	= $zd($zdh($p(line," ",9), 4), 3)
+			set data.term 			= $p(line," ",7)
 		}
 
-		If lineSelled = i {
-			set data.amountSell =  $piece(line," ",1)
-			set data.deviseSell = $piece(line," ",2)
+		// Second line of the matrice
+		if line2 _ " " _ line1 _ " " _ line = "Opération de Levée Anticipée" {
+			set lineLevee = i + 1
 		}
 
-		If $Find(line,idFX) {
-			set data.contrat	= $piece(line," ",1)
-			set data.opeRef		= $piece(line," ",1)
-			set data.spot		= $piece(line," ",7)
-			set data.tradeDate	= $piece(line," ",8)
-			set data.valueDate	= $piece(line," ",9)
+		If i = lineLevee {
+			set data.contrat	= data.contrat _ " - " _ $p(line, " ", 1)
+			set data.reference	= data.contrat
+			set data.tradeDate	= $zd($zdh($p(line," ",8), 4), 3)
+			set data.valueDate	= $zd($zdh($p(line," ",9), 4), 3)
+			set data.spot 		= $p(line," ",7)
+		}
+
+		// Received
+		if $Find(line ,"Paiement à CFAO") {
+			set lineReceived = i + 1
+		}
+
+		if lineReceived = i {
+			set data.amountReceived = $p(line," ",1)
+			set data.deviseReceived = $p(line," ",2)
+		}
+
+		// Paid
+		if $Find(line ,"Paiement à SOCIETE GENERALE") {
+			set linePaid = i + 1
+		}
+
+		If linePaid = i {
+			set data.amountPaid = $p(line," ",1)
+			set data.devisePaid = $p(line," ",2)
 		}
 	}
 
     // Check if every requiered fields are provided
     If '..hasRequiredField(data, 2) {
 	    set pResponse.status = 0
-	    set pResponse.message = "SGSWAP - Valeur de rapprochement terme manquante"
+	    set pResponse.message = data.bank _ " " _ data.confType _ " - Valeur de rapprochement manquante"
 	    quit $$$OK
     }
 

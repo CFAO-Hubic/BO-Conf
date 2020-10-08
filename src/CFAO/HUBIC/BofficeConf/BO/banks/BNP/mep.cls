@@ -1,4 +1,4 @@
-Class CFAO.HUBIC.BofficeConf.BO.banks.SG.mepSpot Extends CFAO.HUBIC.BofficeConf.BO.banks.masterClass
+Class CFAO.HUBIC.BofficeConf.BO.banks.BNP.mep Extends CFAO.HUBIC.BofficeConf.BO.banks.masterClass
 {
 
 Parameter INVOCATION = "Queue";
@@ -6,8 +6,8 @@ Parameter INVOCATION = "Queue";
 Method saveAndCheckMatch(pRequest As %Stream.FileCharacter, Output pResponse As CFAO.HUBIC.BofficeConf.messages.checkBankMsg) As %Status
 {
 	set data = {}
-	set data.bank = "SG"
-	set data.confType = "MEP Spot"
+	set data.bank = "BNP"
+	set data.confType = "MEP"
 	set firstLine = 1
 
 	set pResponse = ##class(CFAO.HUBIC.BofficeConf.messages.checkBankMsg).%New()
@@ -25,24 +25,24 @@ Method saveAndCheckMatch(pRequest As %Stream.FileCharacter, Output pResponse As 
 			set firstLine = 0
 		}
 
-		// Contract number and reference
+		// Contract number
 		if $Find(line,"Ref SG de Transaction") {
 		   set data.contrat= $replace($piece(line,":",2)," ","")
-			set data.reference = $replace($piece(line,":",2)," ","")		   		
 		}
 
 		// Operation reference
 		if $Find(line ,"Ref SG de Transaction") {
+			set data.opeRef = $replace($piece(line,":",2)," ","")		   		
 		}
 
 		// Trade date (03-MAR-2014)
 		if $Find(line ,"Date de Conclusion") {
-			set data.tradeDate = ##class(CFAO.HUBIC.Outils).convertDateDDMmmmYYYY($piece(line,": ",2), "-", 3)
+			set data.tradeDate = ##class(CFAO.HUBIC.Outils).convertDateDDMmmmYYYY($piece(line,": ",2), "-")
 		}
 
 		// Value date
 		if $Find(line ,"Date de Paiement") {
-			set data.valueDate = ##class(CFAO.HUBIC.Outils).convertDateDDMmmmYYYY($piece(line,": ",2), "-", 3)
+			set data.valueDate = ##class(CFAO.HUBIC.Outils).convertDateDDMmmmYYYY($piece(line,": ",2), "-")
 		}
 
 		// Spot
@@ -51,21 +51,21 @@ Method saveAndCheckMatch(pRequest As %Stream.FileCharacter, Output pResponse As 
 			if $Extract(data.spot,1,1)="." set data.spot = "0" _ data.spot
 		}
 
-		// Received
-		if $Find(line ,"Montant et Devise à verser par la Partie A") > 0 {
-			set received = $replace($piece(line,":",2)," ","")
-			if received {
-				set data.amountReceived = $extract(received,1,*-3)
-				set data.deviseReceived = $extract(received,*-2,*)
+		// Buyed
+		if $Find(line ,"Montant et Devise à verser par la Partie B") {
+			set buyed = $replace($piece(line,":",2)," ","")
+			if buyed {
+				set data.amountReceived = $extract(buyed,1,*-3)
+				set data.deviseReceived = $extract(buyed,*-2,*)
 			}
 		}
 
 		// Selled
-		if $Find(line ,"Montant et Devise à verser par la Partie B") {
-			set paid = $replace($piece(line,":",2)," ","")
-			if paid {
-				set data.amountPaid =  $extract(paid,1,*-3)
-				set data.devisePaid = $extract(paid,*-2,*)
+		if $Find(line ,"Montant et Devise à verser par la Partie A") > 0 {
+			set selled = $replace($piece(line,":",2)," ","")
+			if selled {
+				set data.amountPaid =  $extract(selled,1,*-3)
+				set data.devisePaid = $extract(selled,*-2,*)
 			}
 		}
 	}
@@ -74,7 +74,7 @@ Method saveAndCheckMatch(pRequest As %Stream.FileCharacter, Output pResponse As 
     // Check if every requiered fields are provided
     If '..hasRequiredField(data, 0) {
 	    set pResponse.status = 0
-	    set pResponse.message = data.bank _ " " _ data.confType _ " - Valeur de rapprochement manquante"
+	    set pResponse.message = "SGMEP - Valeur de rapprochement manquante"
 	    quit $$$OK
     }
 

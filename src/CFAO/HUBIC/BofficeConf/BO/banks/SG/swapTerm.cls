@@ -9,9 +9,14 @@ Method saveAndCheckMatch(pRequest As %Stream.FileCharacter, Output pResponse As 
 	set data.bank = "SG"
 	set data.confType = "SWAP Term"
 
-	set i = 0
-	set lineBuyed = ""
-	set lineSelled = ""
+	set (
+		i,
+		lineInfo,
+		lineReceived,
+		linePaid,
+		lineRate,
+		lineMaturityDate
+	) = 0
 
 	set pResponse = ##class(CFAO.HUBIC.BofficeConf.messages.checkBankMsg).%New()
 	set pResponse.bank = data.bank
@@ -28,50 +33,73 @@ Method saveAndCheckMatch(pRequest As %Stream.FileCharacter, Output pResponse As 
 		}
 
 		if $Find(line,"Ref SG de Transaction") {
-			set data.contrat = $replace($piece(line,":",2)," ","")
-			set data.opeRef = $replace($piece(line,":",2)," ","")
+			set data.contrat = $replace($p(line,":",2)," ","")
+			set data.reference = $replace($p(line,":",2)," ","")
 		}
 
 		if $Find(line, "Date de Conclusion") {
-			set data.tradeDate =  ##class(CFAO.HUBIC.Outils).convertTextDate($piece(line,": ",2))
+			set data.tradeDate =  ##class(CFAO.HUBIC.Outils).convertDateDDMmmmYYYY($p(line," : ",2), "-", 3)
 		}
 
-		// Term
-		if $Find(line, data.contrat) {
-			set lineBuyed = i + 2
-			set lineSelled = i + 1
-			set lineRate = i + 3
-			set lineValueDate = i + 4
+		if line = "Patte long terme du swap" {	
+			set lineInfo			= 1
+			set lineReceived		= i
+			set linePaid			= i + 1
+			set lineRate			= i + 2
+			set lineMaturityDate	= i + 3
 		}
 
-		if i = lineBuyed {
-			set buyed = $replace($piece(line,":",2)," ","")
-			set data.amountBuy = $extract(buyed,1,*-3)
-			set data.deviseBuy = $extract(buyed,*-2,*)
+		// The informations can be in the next page, which is delimited by separator lines like *SIC20200930723815*.
+		// The index must therefore be incremented each time the expected strings can't be find
+		if lineInfo
+		&& '$Find(line, "Montant et Devise à verser par la Partie A : ")
+		&& '$Find(line, "Montant et Devise à verser par la Partie B : ")
+		&& '$Find(line, "Taux : ")
+		&& '$Find(line, "Date de Paiement : ")
+		{
+			set lineReceived		= lineReceived + 1
+			set linePaid			= linePaid + 1
+			set lineRate			= lineRate + 1
+			set lineMaturityDate	= lineMaturityDate + 1
 		}
 
-		if i = lineSelled {
-			set selled = $replace($piece(line,":",2)," ","")
-			set data.amountSell = $extract(NousVendonsC,1,*-3)
-			set data.deviseSell = $extract(NousVendonsC,*-2,*)
+		if i = lineReceived {
+			$$$LOGINFO("Ligne reçue : " _ line)
+			set buyed = $replace($p(line,":",2)," ","")
+			set data.amountReceived = $extract(buyed,1,*-3)
+			set data.deviseReceived = $extract(buyed,*-2,*)
+			set lineReceived = 0
+		}
+
+		if i = linePaid {
+			$$$LOGINFO("Ligne versée : " _ line)
+			set selled = $replace($p(line,":",2)," ","")
+			set data.amountPaid = $extract(selled,1,*-3)
+			set data.devisePaid = $extract(selled,*-2,*)
+			set linePaid = 0
 		}
 
 		if i = lineRate {
-			set data.spot = $replace($piece(line,":",2)," ","") * 1
+			$$$LOGINFO("Ligne taux : " _ line)
+			set data.spot = $replace($p(line,":",2)," ","") * 1
 			if $Extract(data.spot,1,1)="."{
 				set data.spot = "0" _ data.spot
 			}
+			set lineRate = 0
 		}
 
 		if i = lineMaturityDate {
-			set data.maturityDate =  ##class(CFAO.HUBIC.Outils).convertTextDate($piece(line,": ",2))
+			$$$LOGINFO("Ligne date maturité : " _ line)
+			set data.maturityDate =  ##class(CFAO.HUBIC.Outils).convertDateDDMmmmYYYY($p(line,": ",2), "-", 3)
+			set lineMaturityDate = 0
+			set lineInfo = 0
 		}
 	}
 
     // Check if every requiered fields are provided
-    If '..hasRequiredField(data, 2) {
+    If '..hasRequiredField(data, 0) {
 	    set pResponse.status = 0
-	    set pResponse.message = "SGSWAP - Valeur de rapprochement terme manquante"
+	    set pResponse.message = data.bank _ " " _ data.confType _ " - Valeur de rapprochement manquante"
 	    quit $$$OK
     }
 

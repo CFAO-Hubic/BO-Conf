@@ -20,11 +20,11 @@ XData DTL [ XMLNamespace = "http://www.intersystems.com/dtl" ]
 <assign value='source.Records.(k1).TRADETYPESHORTNAME' property='target.forexRecords.(k1).tradeType' action='set' />
 
 
-<assign value='..replace(target.forexRecords.(k1).amountBuy," ","")' property='target.forexRecords.(k1).amountBuy' action='set' />
+<assign value='..replace(target.forexRecords.(k1).amountReceived," ","")' property='target.forexRecords.(k1).amountReceived' action='set' />
 <assign value='source.Records.(k1).CLIENTRATE' property='target.forexRecords.(k1).term' action='set' />
 
 <assign value='source.Records.(k1).SPOTRATE' property='target.forexRecords.(k1).spot' action='set' />
-<assign value='source.Records.(k1).REMAININGAMOUNT1' property='target.forexRecords.(k1).amountBuyRemaining' action='set' />
+<assign value='source.Records.(k1).REMAININGAMOUNT1' property='target.forexRecords.(k1).amountReceivedRemaining' action='set' />
 <assign value='source.Records.(k1).APPLICATIVESTATUSNAME' property='target.forexRecords.(k1).forexStatus' action='set' />
 <assign value='source.Records.(k1).REFERENCE' property='target.forexRecords.(k1).reference' action='set' />
 <assign value='..SubString(source.Records.(k1).VALUEDATE,1,10)' property='target.forexRecords.(k1).valueDate' action='set' />
@@ -38,10 +38,10 @@ XData DTL [ XMLNamespace = "http://www.intersystems.com/dtl" ]
 <true>
 <assign value='"V"' property='target.forexRecords.(k1).sens' action='set' />
 <assign value='"MEP TERME"' property='target.forexRecords.(k1).confType' action='set' />
-<assign value='source.Records.(k1).CURRENCY1SHORTNAME' property='target.forexRecords.(k1).deviseSell' action='set' />
-<assign value='source.Records.(k1).CURRENCY2SHORTNAME' property='target.forexRecords.(k1).deviseBuy' action='set' />
-<assign value='source.Records.(k1).AMOUNT1' property='target.forexRecords.(k1).amountSell' action='set' />
-<assign value='source.Records.(k1).AMOUNT2' property='target.forexRecords.(k1).amountBuy' action='set' />
+<assign value='source.Records.(k1).CURRENCY1SHORTNAME' property='target.forexRecords.(k1).devisePaid' action='set' />
+<assign value='source.Records.(k1).CURRENCY2SHORTNAME' property='target.forexRecords.(k1).deviseReceived' action='set' />
+<assign value='source.Records.(k1).AMOUNT1' property='target.forexRecords.(k1).amountPaid' action='set' />
+<assign value='source.Records.(k1).AMOUNT2' property='target.forexRecords.(k1).amountReceived' action='set' />
 </true>
 </if>
 
@@ -49,10 +49,10 @@ XData DTL [ XMLNamespace = "http://www.intersystems.com/dtl" ]
 <true>
 <assign value='"A"' property='target.forexRecords.(k1).sens' action='set' />
 <assign value='"MEP TERME"' property='target.forexRecords.(k1).confType' action='set' />
-<assign value='source.Records.(k1).CURRENCY1SHORTNAME' property='target.forexRecords.(k1).deviseBuy' action='set' />
-<assign value='source.Records.(k1).CURRENCY2SHORTNAME' property='target.forexRecords.(k1).deviseSell' action='set' />
-<assign value='source.Records.(k1).AMOUNT1' property='target.forexRecords.(k1).amountBuy' action='set' />
-<assign value='source.Records.(k1).AMOUNT2' property='target.forexRecords.(k1).amountSell' action='set' />
+<assign value='source.Records.(k1).CURRENCY1SHORTNAME' property='target.forexRecords.(k1).deviseReceived' action='set' />
+<assign value='source.Records.(k1).CURRENCY2SHORTNAME' property='target.forexRecords.(k1).devisePaid' action='set' />
+<assign value='source.Records.(k1).AMOUNT1' property='target.forexRecords.(k1).amountReceived' action='set' />
+<assign value='source.Records.(k1).AMOUNT2' property='target.forexRecords.(k1).amountPaid' action='set' />
 </true>
 </if>
 
@@ -60,10 +60,10 @@ XData DTL [ XMLNamespace = "http://www.intersystems.com/dtl" ]
 <true>
 <assign value='"V"' property='target.forexRecords.(k1).sens' action='set' />
 <assign value='"MEP SPOT"' property='target.forexRecords.(k1).confType' action='set' />
-<assign value='source.Records.(k1).CURRENCY1SHORTNAME' property='target.forexRecords.(k1).deviseSell' action='set' />
-<assign value='source.Records.(k1).CURRENCY2SHORTNAME' property='target.forexRecords.(k1).deviseBuy' action='set' />
-<assign value='source.Records.(k1).AMOUNT1' property='target.forexRecords.(k1).amountSell' action='set' />
-<assign value='source.Records.(k1).AMOUNT2' property='target.forexRecords.(k1).amountBuy' action='set' />
+<assign value='source.Records.(k1).CURRENCY1SHORTNAME' property='target.forexRecords.(k1).devisePaid' action='set' />
+<assign value='source.Records.(k1).CURRENCY2SHORTNAME' property='target.forexRecords.(k1).deviseReceived' action='set' />
+<assign value='source.Records.(k1).AMOUNT1' property='target.forexRecords.(k1).amountPaid' action='set' />
+<assign value='source.Records.(k1).AMOUNT2' property='target.forexRecords.(k1).amountReceived' action='set' />
 </true>
 </if>
 
@@ -71,10 +71,10 @@ XData DTL [ XMLNamespace = "http://www.intersystems.com/dtl" ]
 <true>
 <assign value='"V"' property='target.forexRecords.(k1).sens' action='set' />
 <assign value='"MEP SPOT ANN"' property='target.forexRecords.(k1).confType' action='set' />
-<assign value='source.Records.(k1).CURRENCY1SHORTNAME' property='target.forexRecords.(k1).deviseSell' action='set' />
-<assign value='source.Records.(k1).CURRENCY2SHORTNAME' property='target.forexRecords.(k1).deviseBuy' action='set' />
-<assign value='source.Records.(k1).AMOUNT1' property='target.forexRecords.(k1).amountSell' action='set' />
-<assign value='source.Records.(k1).AMOUNT2' property='target.forexRecords.(k1).amountBuy' action='set' />
+<assign value='source.Records.(k1).CURRENCY1SHORTNAME' property='target.forexRecords.(k1).devisePaid' action='set' />
+<assign value='source.Records.(k1).CURRENCY2SHORTNAME' property='target.forexRecords.(k1).deviseReceived' action='set' />
+<assign value='source.Records.(k1).AMOUNT1' property='target.forexRecords.(k1).amountPaid' action='set' />
+<assign value='source.Records.(k1).AMOUNT2' property='target.forexRecords.(k1).amountReceived' action='set' />
 </true>
 </if>
 
@@ -82,10 +82,10 @@ XData DTL [ XMLNamespace = "http://www.intersystems.com/dtl" ]
 <true>
 <assign value='"A"' property='target.forexRecords.(k1).sens' action='set' />
 <assign value='"MEP SPOT"' property='target.forexRecords.(k1).confType' action='set' />
-<assign value='source.Records.(k1).CURRENCY1SHORTNAME' property='target.forexRecords.(k1).deviseBuy' action='set' />
-<assign value='source.Records.(k1).CURRENCY2SHORTNAME' property='target.forexRecords.(k1).deviseSell' action='set' />
-<assign value='source.Records.(k1).AMOUNT1' property='target.forexRecords.(k1).amountBuy' action='set' />
-<assign value='source.Records.(k1).AMOUNT2' property='target.forexRecords.(k1).amountSell' action='set' />
+<assign value='source.Records.(k1).CURRENCY1SHORTNAME' property='target.forexRecords.(k1).deviseReceived' action='set' />
+<assign value='source.Records.(k1).CURRENCY2SHORTNAME' property='target.forexRecords.(k1).devisePaid' action='set' />
+<assign value='source.Records.(k1).AMOUNT1' property='target.forexRecords.(k1).amountReceived' action='set' />
+<assign value='source.Records.(k1).AMOUNT2' property='target.forexRecords.(k1).amountPaid' action='set' />
 </true>
 </if>
 
@@ -93,10 +93,10 @@ XData DTL [ XMLNamespace = "http://www.intersystems.com/dtl" ]
 <true>
 <assign value='"A"' property='target.forexRecords.(k1).sens' action='set' />
 <assign value='"MEP SPOT ANN"' property='target.forexRecords.(k1).confType' action='set' />
-<assign value='source.Records.(k1).CURRENCY1SHORTNAME' property='target.forexRecords.(k1).deviseBuy' action='set' />
-<assign value='source.Records.(k1).CURRENCY2SHORTNAME' property='target.forexRecords.(k1).deviseSell' action='set' />
-<assign value='source.Records.(k1).AMOUNT1' property='target.forexRecords.(k1).amountBuy' action='set' />
-<assign value='source.Records.(k1).AMOUNT2' property='target.forexRecords.(k1).amountSell' action='set' />
+<assign value='source.Records.(k1).CURRENCY1SHORTNAME' property='target.forexRecords.(k1).deviseReceived' action='set' />
+<assign value='source.Records.(k1).CURRENCY2SHORTNAME' property='target.forexRecords.(k1).devisePaid' action='set' />
+<assign value='source.Records.(k1).AMOUNT1' property='target.forexRecords.(k1).amountReceived' action='set' />
+<assign value='source.Records.(k1).AMOUNT2' property='target.forexRecords.(k1).amountPaid' action='set' />
 </true>
 </if>
 
@@ -104,10 +104,10 @@ XData DTL [ XMLNamespace = "http://www.intersystems.com/dtl" ]
 <true>
 <assign value='"V"' property='target.forexRecords.(k1).sens' action='set' />
 <assign value='"PRORO"' property='target.forexRecords.(k1).confType' action='set' />
-<assign value='source.Records.(k1).CURRENCY1SHORTNAME' property='target.forexRecords.(k1).deviseSell' action='set' />
-<assign value='source.Records.(k1).CURRENCY2SHORTNAME' property='target.forexRecords.(k1).deviseBuy' action='set' />
-<assign value='source.Records.(k1).AMOUNT1' property='target.forexRecords.(k1).amountSell' action='set' />
-<assign value='source.Records.(k1).AMOUNT2' property='target.forexRecords.(k1).amountBuy' action='set' />
+<assign value='source.Records.(k1).CURRENCY1SHORTNAME' property='target.forexRecords.(k1).devisePaid' action='set' />
+<assign value='source.Records.(k1).CURRENCY2SHORTNAME' property='target.forexRecords.(k1).deviseReceived' action='set' />
+<assign value='source.Records.(k1).AMOUNT1' property='target.forexRecords.(k1).amountPaid' action='set' />
+<assign value='source.Records.(k1).AMOUNT2' property='target.forexRecords.(k1).amountReceived' action='set' />
 </true>
 </if>
 
@@ -115,10 +115,10 @@ XData DTL [ XMLNamespace = "http://www.intersystems.com/dtl" ]
 <true>
 <assign value='"A"' property='target.forexRecords.(k1).sens' action='set' />
 <assign value='"PRORO"' property='target.forexRecords.(k1).confType' action='set' />
-<assign value='source.Records.(k1).CURRENCY1SHORTNAME' property='target.forexRecords.(k1).deviseBuy' action='set' />
-<assign value='source.Records.(k1).CURRENCY2SHORTNAME' property='target.forexRecords.(k1).deviseSell' action='set' />
-<assign value='source.Records.(k1).AMOUNT1' property='target.forexRecords.(k1).amountBuy' action='set' />
-<assign value='source.Records.(k1).AMOUNT2' property='target.forexRecords.(k1).amountSell' action='set' />
+<assign value='source.Records.(k1).CURRENCY1SHORTNAME' property='target.forexRecords.(k1).deviseReceived' action='set' />
+<assign value='source.Records.(k1).CURRENCY2SHORTNAME' property='target.forexRecords.(k1).devisePaid' action='set' />
+<assign value='source.Records.(k1).AMOUNT1' property='target.forexRecords.(k1).amountReceived' action='set' />
+<assign value='source.Records.(k1).AMOUNT2' property='target.forexRecords.(k1).amountPaid' action='set' />
 </true>
 </if>
 
@@ -126,10 +126,10 @@ XData DTL [ XMLNamespace = "http://www.intersystems.com/dtl" ]
 <true>
 <assign value='"V"' property='target.forexRecords.(k1).sens' action='set' />
 <assign value='"LEVEE"' property='target.forexRecords.(k1).confType' action='set' />
-<assign value='source.Records.(k1).CURRENCY1SHORTNAME' property='target.forexRecords.(k1).deviseBuy' action='set' />
-<assign value='source.Records.(k1).CURRENCY2SHORTNAME' property='target.forexRecords.(k1).deviseSell' action='set' />
-<assign value='source.Records.(k1).AMOUNT1' property='target.forexRecords.(k1).amountBuy' action='set' />
-<assign value='source.Records.(k1).AMOUNT2' property='target.forexRecords.(k1).amountSell' action='set' />
+<assign value='source.Records.(k1).CURRENCY1SHORTNAME' property='target.forexRecords.(k1).deviseReceived' action='set' />
+<assign value='source.Records.(k1).CURRENCY2SHORTNAME' property='target.forexRecords.(k1).devisePaid' action='set' />
+<assign value='source.Records.(k1).AMOUNT1' property='target.forexRecords.(k1).amountReceived' action='set' />
+<assign value='source.Records.(k1).AMOUNT2' property='target.forexRecords.(k1).amountPaid' action='set' />
 </true>
 </if>
 
@@ -137,10 +137,10 @@ XData DTL [ XMLNamespace = "http://www.intersystems.com/dtl" ]
 <true>
 <assign value='"V"' property='target.forexRecords.(k1).sens' action='set' />
 <assign value='"LEVEE ANN"' property='target.forexRecords.(k1).confType' action='set' />
-<assign value='source.Records.(k1).CURRENCY1SHORTNAME' property='target.forexRecords.(k1).deviseBuy' action='set' />
-<assign value='source.Records.(k1).CURRENCY2SHORTNAME' property='target.forexRecords.(k1).deviseSell' action='set' />
-<assign value='source.Records.(k1).AMOUNT1' property='target.forexRecords.(k1).amountBuy' action='set' />
-<assign value='source.Records.(k1).AMOUNT2' property='target.forexRecords.(k1).amountSell' action='set' />
+<assign value='source.Records.(k1).CURRENCY1SHORTNAME' property='target.forexRecords.(k1).deviseReceived' action='set' />
+<assign value='source.Records.(k1).CURRENCY2SHORTNAME' property='target.forexRecords.(k1).devisePaid' action='set' />
+<assign value='source.Records.(k1).AMOUNT1' property='target.forexRecords.(k1).amountReceived' action='set' />
+<assign value='source.Records.(k1).AMOUNT2' property='target.forexRecords.(k1).amountPaid' action='set' />
 </true>
 </if>
 
@@ -148,10 +148,10 @@ XData DTL [ XMLNamespace = "http://www.intersystems.com/dtl" ]
 <true>
 <assign value='"A"' property='target.forexRecords.(k1).sens' action='set' />
 <assign value='"LEVEE"' property='target.forexRecords.(k1).confType' action='set' />
-<assign value='source.Records.(k1).CURRENCY1SHORTNAME' property='target.forexRecords.(k1).deviseSell' action='set' />
-<assign value='source.Records.(k1).CURRENCY2SHORTNAME' property='target.forexRecords.(k1).deviseBuy' action='set' />
-<assign value='source.Records.(k1).AMOUNT1' property='target.forexRecords.(k1).amountSell' action='set' />
-<assign value='source.Records.(k1).AMOUNT2' property='target.forexRecords.(k1).amountBuy' action='set' />
+<assign value='source.Records.(k1).CURRENCY1SHORTNAME' property='target.forexRecords.(k1).devisePaid' action='set' />
+<assign value='source.Records.(k1).CURRENCY2SHORTNAME' property='target.forexRecords.(k1).deviseReceived' action='set' />
+<assign value='source.Records.(k1).AMOUNT1' property='target.forexRecords.(k1).amountPaid' action='set' />
+<assign value='source.Records.(k1).AMOUNT2' property='target.forexRecords.(k1).amountReceived' action='set' />
 </true>
 </if>
 
@@ -159,10 +159,10 @@ XData DTL [ XMLNamespace = "http://www.intersystems.com/dtl" ]
 <true>
 <assign value='"A"' property='target.forexRecords.(k1).sens' action='set' />
 <assign value='"LEVEE ANN"' property='target.forexRecords.(k1).confType' action='set' />
-<assign value='source.Records.(k1).CURRENCY1SHORTNAME' property='target.forexRecords.(k1).deviseSell' action='set' />
-<assign value='source.Records.(k1).CURRENCY2SHORTNAME' property='target.forexRecords.(k1).deviseBuy' action='set' />
-<assign value='source.Records.(k1).AMOUNT1' property='target.forexRecords.(k1).amountSell' action='set' />
-<assign value='source.Records.(k1).AMOUNT2' property='target.forexRecords.(k1).amountBuy' action='set' />
+<assign value='source.Records.(k1).CURRENCY1SHORTNAME' property='target.forexRecords.(k1).devisePaid' action='set' />
+<assign value='source.Records.(k1).CURRENCY2SHORTNAME' property='target.forexRecords.(k1).deviseReceived' action='set' />
+<assign value='source.Records.(k1).AMOUNT1' property='target.forexRecords.(k1).amountPaid' action='set' />
+<assign value='source.Records.(k1).AMOUNT2' property='target.forexRecords.(k1).amountReceived' action='set' />
 </true>
 </if>
 
@@ -170,10 +170,10 @@ XData DTL [ XMLNamespace = "http://www.intersystems.com/dtl" ]
 <true>
 <assign value='"A"' property='target.forexRecords.(k1).sens' action='set' />
 <assign value='"SWAP"' property='target.forexRecords.(k1).confType' action='set' />
-<assign value='source.Records.(k1).CURRENCY1SHORTNAME' property='target.forexRecords.(k1).deviseBuy' action='set' />
-<assign value='source.Records.(k1).CURRENCY2SHORTNAME' property='target.forexRecords.(k1).deviseSell' action='set' />
-<assign value='source.Records.(k1).AMOUNT1' property='target.forexRecords.(k1).amountBuy' action='set' />
-<assign value='source.Records.(k1).AMOUNT2' property='target.forexRecords.(k1).amountSell' action='set' />
+<assign value='source.Records.(k1).CURRENCY1SHORTNAME' property='target.forexRecords.(k1).deviseReceived' action='set' />
+<assign value='source.Records.(k1).CURRENCY2SHORTNAME' property='target.forexRecords.(k1).devisePaid' action='set' />
+<assign value='source.Records.(k1).AMOUNT1' property='target.forexRecords.(k1).amountReceived' action='set' />
+<assign value='source.Records.(k1).AMOUNT2' property='target.forexRecords.(k1).amountPaid' action='set' />
 </true>
 </if>
 
@@ -181,31 +181,31 @@ XData DTL [ XMLNamespace = "http://www.intersystems.com/dtl" ]
 <true>
 <assign value='"V"' property='target.forexRecords.(k1).sens' action='set' />
 <assign value='"SWAP"' property='target.forexRecords.(k1).confType' action='set' />
-<assign value='source.Records.(k1).CURRENCY1SHORTNAME' property='target.forexRecords.(k1).deviseSell' action='set' />
-<assign value='source.Records.(k1).CURRENCY2SHORTNAME' property='target.forexRecords.(k1).deviseBuy' action='set' />
-<assign value='source.Records.(k1).AMOUNT1' property='target.forexRecords.(k1).amountSell' action='set' />
-<assign value='source.Records.(k1).AMOUNT2' property='target.forexRecords.(k1).amountBuy' action='set' />
+<assign value='source.Records.(k1).CURRENCY1SHORTNAME' property='target.forexRecords.(k1).devisePaid' action='set' />
+<assign value='source.Records.(k1).CURRENCY2SHORTNAME' property='target.forexRecords.(k1).deviseReceived' action='set' />
+<assign value='source.Records.(k1).AMOUNT1' property='target.forexRecords.(k1).amountPaid' action='set' />
+<assign value='source.Records.(k1).AMOUNT2' property='target.forexRecords.(k1).amountReceived' action='set' />
 </true>
 </if>
 
-<if condition='..Contains(target.forexRecords.(k1).amountBuy,",")' >
+<if condition='..Contains(target.forexRecords.(k1).amountReceived,",")' >
 <true>
-<assign value='..Piece(target.forexRecords.(k1).amountBuy,",",1)' property='target.forexRecords.(k1).amountBuy' action='set' />
+<assign value='..Piece(target.forexRecords.(k1).amountReceived,",",1)' property='target.forexRecords.(k1).amountReceived' action='set' />
 </true>
 <false>
-<assign value='target.forexRecords.(k1).amountBuy' property='target.forexRecords.(k1).amountBuy' action='set' />
+<assign value='target.forexRecords.(k1).amountReceived' property='target.forexRecords.(k1).amountReceived' action='set' />
 </false>
 </if>
-<if condition='..Contains(target.forexRecords.(k1).amountSell,",")' >
+<if condition='..Contains(target.forexRecords.(k1).amountPaid,",")' >
 <true>
-<assign value='..Piece(target.forexRecords.(k1).amountSell,",",1)' property='target.forexRecords.(k1).amountSell' action='set' />
+<assign value='..Piece(target.forexRecords.(k1).amountPaid,",",1)' property='target.forexRecords.(k1).amountPaid' action='set' />
 </true>
 <false>
-<assign value='target.forexRecords.(k1).amountSell' property='target.forexRecords.(k1).amountSell' action='set' />
+<assign value='target.forexRecords.(k1).amountPaid' property='target.forexRecords.(k1).amountPaid' action='set' />
 </false>
 </if>
-<assign value='..replace(target.forexRecords.(k1).amountBuy," ","")' property='target.forexRecords.(k1).amountBuy' action='set' />
-<assign value='..replace(target.forexRecords.(k1).amountSell," ","")' property='target.forexRecords.(k1).amountSell' action='set' />
+<assign value='..replace(target.forexRecords.(k1).amountReceived," ","")' property='target.forexRecords.(k1).amountReceived' action='set' />
+<assign value='..replace(target.forexRecords.(k1).amountPaid," ","")' property='target.forexRecords.(k1).amountPaid' action='set' />
 </foreach>
 </transform>
 }

@@ -9,9 +9,13 @@ Method saveAndCheckMatch(pRequest As %Stream.FileCharacter, Output pResponse As 
 	set data.bank = "SG"
 	set data.confType = "SWAP Spot"
 
-	set i = 0
-	set lineBuyed = 0
-	set lineSelled = 0
+	set (
+		i,
+		lineReceived,
+		linePaid,
+		lineRate,
+		lineValueDate
+	) = 0
 
 	set pResponse = ##class(CFAO.HUBIC.BofficeConf.messages.checkBankMsg).%New()
 	set pResponse.bank = data.bank
@@ -28,50 +32,46 @@ Method saveAndCheckMatch(pRequest As %Stream.FileCharacter, Output pResponse As 
 		}
 
 		if $Find(line,"Ref SG de Transaction") {
-			set data.contrat = $replace($piece(line,":",2)," ","")
-			set data.opeRef = $replace($piece(line,":",2)," ","")
+			set data.contrat = $replace($p(line,":",2)," ","")
+			set data.opeRef = $replace($p(line,":",2)," ","")
 		}
 
 		if $Find(line, "Date de Conclusion") {
-			Set data.tradeDate =  ##class(CFAO.HUBIC.Outils).convertTextDate($piece(line,": ",2))
+			set data.tradeDate =  ##class(CFAO.HUBIC.Outils).convertDateDDMmmmYYYY($p(line," : ",2), "-", 3)
 		}
 
-		// Spot
-		if line = "Patte court terme du swap" {	
-			Set lineBuyed = i + 2
-			Set lineSelled = i + 1
-			Set lineRate = i + 3
-			Set lineValueDate = i + 4
+		if line = "Patte court terme du swap" {
+			set lineReceived	= i + 2
+			set linePaid		= i + 1
+			set lineRate		= i + 3
+			set lineValueDate	= i + 4
 		}
 
-		if i = lineBuyed {
-			Set buyed = $replace($piece(line,":",2)," ","")
-			Set data.amountBuy = $extract(buyed,1,*-3)
-			Set data.deviseBuy = $extract(buyed,*-2,*)
+		if i = lineReceived {
+			set buyed = $replace($p(line,":",2)," ","")
+			set data.amountReceived = $e(buyed,1,*-3)
+			set data.deviseReceived = $e(buyed,*-2,*)
 		}
 
-		if i = lineSelled {
-			Set selled = $replace($piece(line,":",2)," ","")
-			Set data.amountSell = $extract(NousVendonsC,1,*-3)
-			Set data.deviseSell = $extract(NousVendonsC,*-2,*)
+		if i = linePaid {
+			set selled = $replace($p(line,":",2)," ","")
+			set data.amountPaid = $e(selled,1,*-3)
+			set data.devisePaid = $e(selled,*-2,*)
 		}
 
 		if i = lineRate {
-			Set data.spot = $replace($piece(line,":",2)," ","") * 1
-			if $Extract(data.spot,1,1)="."{
-				set data.spot = "0" _ dataSpot.spot
-			}
+			set data.spot = $p(line,": ",2) * 1
 		}
 
 		if i = lineValueDate {
-			Set data.valueDate =  ##class(CFAO.HUBIC.Outils).convertTextDate($piece(line,": ",2))
+			set data.valueDate =  ##class(CFAO.HUBIC.Outils).convertDateDDMmmmYYYY($p(line,": ",2), "-", 3)
 		}
 	}
 
     // Check if every requiered fields are provided
-    If '..hasRequiredField(data, 2) {
+    If '..hasRequiredField(data, 1) {
 	    set pResponse.status = 0
-	    set pResponse.message = "SGSWAP - Valeur de rapprochement terme manquante"
+	    set pResponse.message = data.bank _ " " _ data.confType _ " - Valeur de rapprochement manquante"
 	    quit $$$OK
     }
 

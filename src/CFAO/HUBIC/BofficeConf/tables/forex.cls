@@ -33,23 +33,23 @@ Property spot As %String [ SqlColumnNumber = 10 ];
 
 // SPOTRATE
 
-Property amountBuy As %String [ SqlColumnNumber = 11 ];
+Property amountReceived As %String [ SqlColumnNumber = 11 ];
 
 // AMOUNT1
 
-Property amountBuyRemaining As %String [ SqlColumnNumber = 12 ];
+Property amountReceivedRemaining As %String [ SqlColumnNumber = 12 ];
 
 // REMAININGAMOUNT1
 
-Property deviseBuy As %String(MAXLEN = 5) [ SqlColumnNumber = 13 ];
+Property deviseReceived As %String(MAXLEN = 5) [ SqlColumnNumber = 13 ];
 
 // CURRENCY1SHORTNAME
 
-Property amountSell As %String [ SqlColumnNumber = 14 ];
+Property amountPaid As %String [ SqlColumnNumber = 14 ];
 
 // AMOUNT2
 
-Property deviseSell As %String [ SqlColumnNumber = 15 ];
+Property devisePaid As %String [ SqlColumnNumber = 15 ];
 
 Property sens As %String(MAXLEN = 1) [ SqlColumnNumber = 16 ];
 
@@ -155,19 +155,19 @@ Storage Default
 <Value>spot</Value>
 </Value>
 <Value name="11">
-<Value>amountBuy</Value>
+<Value>amountReceived</Value>
 </Value>
 <Value name="12">
-<Value>amountBuyRemaining</Value>
+<Value>amountReceivedRemaining</Value>
 </Value>
 <Value name="13">
-<Value>deviseBuy</Value>
+<Value>deviseReceived</Value>
 </Value>
 <Value name="14">
-<Value>amountSell</Value>
+<Value>amountPaid</Value>
 </Value>
 <Value name="15">
-<Value>deviseSell</Value>
+<Value>devisePaid</Value>
 </Value>
 <Value name="16">
 <Value>sens</Value>

@@ -35,10 +35,10 @@ Method EnregEtRapprochePJ(pRequest As %Stream.FileCharacter, Output pResponse As
 	set maturityDate= ""
 	set spot		= 0
 	set sens 		= ""
-	set amountBuy	= ""
-	set deviseBuy	= ""
-	set amountSell	= ""
-	set deviseSell =  ""
+	set amountReceived	= ""
+	set deviseReceived	= ""
+	set amountPaid	= ""
+	set devisePaid =  ""
 
 	set IDForex = ""
     set IdEAI = ""
@@ -120,7 +120,7 @@ Method EnregEtRapprochePJ(pRequest As %Stream.FileCharacter, Output pResponse As
 	if maturityDate set maturityDate = ..FormatDate(maturityDate)
 
     //On verifie que toutes les informations necessaires au rapprochement sont bien présentent ************************
-    If 'valueDate || 'amountBuy || 'deviseBuy || 'amountSell || 'deviseSell || 'spot {
+    If 'valueDate || 'amountReceived || 'deviseReceived || 'amountPaid || 'devisePaid || 'spot {
 	    set errorStatus = 1
 	    set errorMesage = "SGMEP - Valeur de rapprochement manquante"
     }
@@ -142,8 +142,8 @@ Method EnregEtRapprochePJ(pRequest As %Stream.FileCharacter, Output pResponse As
 			WHERE 
 				MATURITYDATE = :maturityDate    
 				AND   CPTYSHORTNAME = 'SG' 
-				AND   CURRENCY1SHORTNAME = :deviseBuy
-				AND   AMOUNT1 = :amountBuy
+				AND   CURRENCY1SHORTNAME = :deviseReceived
+				AND   AMOUNT1 = :amountReceived
 				AND   CLIENTRATE = :spot
 				AND   SensVouA = :sens
 				AND   rapprocherOUINON = 0
@@ -170,8 +170,8 @@ Method EnregEtRapprochePJ(pRequest As %Stream.FileCharacter, Output pResponse As
 				    TRADEDATE = :tradeDate
 				    AND valueDate = :valueDate
 				    AND bank = 'SG'
-				    AND deviseBuy = :deviseBuy
-				    AND amountBuy = :amountBuy
+				    AND deviseReceived = :deviseReceived
+				    AND amountReceived = :amountReceived
 				    AND spot = :spot
 				    AND sens = :sens
 				    AND matchStatus = 0

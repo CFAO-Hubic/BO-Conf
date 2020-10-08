@@ -21,13 +21,13 @@ Property term As %String(MAXLEN = 50) [ SqlColumnNumber = 10 ];
 
 Property spot As %String(MAXLEN = 50) [ SqlColumnNumber = 11 ];
 
-Property amountBuy As %String(MAXLEN = 50) [ SqlColumnNumber = 12 ];
+Property amountReceived As %String(MAXLEN = 50) [ SqlColumnNumber = 12 ];
 
-Property amountSell As %String(MAXLEN = 50) [ SqlColumnNumber = 13 ];
+Property amountPaid As %String(MAXLEN = 50) [ SqlColumnNumber = 13 ];
 
-Property deviseBuy As %String(MAXLEN = 50) [ SqlColumnNumber = 14 ];
+Property deviseReceived As %String(MAXLEN = 50) [ SqlColumnNumber = 14 ];
 
-Property deviseSell As %String(MAXLEN = 50) [ SqlColumnNumber = 15 ];
+Property devisePaid As %String(MAXLEN = 50) [ SqlColumnNumber = 15 ];
 
 Property sens As %String(MAXLEN = 50) [ SqlColumnNumber = 16 ];
 
@@ -59,10 +59,10 @@ ClassMethod save(data As %Library.DynamicArray, match As %Integer) As %Status
 	set newLine.maturityDate= data.maturityDate
 	set newLine.spot		= data.spot
 	set newLine.term		= data.term
-	set newLine.amountBuy	= data.amountBuy
-	set newLine.amountSell	= data.amountSell
-	set newLine.deviseBuy	= data.deviseBuy
-	set newLine.deviseSell	= data.deviseSell
+	set newLine.amountReceived	= data.amountReceived
+	set newLine.amountPaid	= data.amountPaid
+	set newLine.deviseReceived	= data.deviseReceived
+	set newLine.devisePaid	= data.devisePaid
 	set newLine.bank		= data.bank
 	set newLine.confType	= data.confType
 	set newLine.matchDate	= data.matchDate
@@ -133,16 +133,16 @@ Storage Default
 <Value>spot</Value>
 </Value>
 <Value name="12">
-<Value>amountBuy</Value>
+<Value>amountReceived</Value>
 </Value>
 <Value name="13">
-<Value>amountSell</Value>
+<Value>amountPaid</Value>
 </Value>
 <Value name="14">
-<Value>deviseBuy</Value>
+<Value>deviseReceived</Value>
 </Value>
 <Value name="15">
-<Value>deviseSell</Value>
+<Value>devisePaid</Value>
 </Value>
 <Value name="16">
 <Value>sens</Value>

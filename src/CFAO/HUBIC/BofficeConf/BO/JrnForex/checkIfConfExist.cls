@@ -36,10 +36,10 @@ Method EnregEtRapproche(pRequest As CFAO.HUBIC.BofficeConf.tables.forexBatch, Ou
 		set tradeDate	= pRequest.forexRecords.GetAt(key).tradeDate
 		set maturityDate= pRequest.forexRecords.GetAt(key).maturityDate
 		set valueDate	= pRequest.forexRecords.GetAt(key).valueDate
-		set deviseBuy	= pRequest.forexRecords.GetAt(key).deviseBuy
-		set deviseSell	= pRequest.forexRecords.GetAt(key).deviseSell
-		set amountBuy	= pRequest.forexRecords.GetAt(key).amountBuy
-		set amountSell	= pRequest.forexRecords.GetAt(key).amountSell
+		set deviseReceived	= pRequest.forexRecords.GetAt(key).deviseReceived
+		set devisePaid	= pRequest.forexRecords.GetAt(key).devisePaid
+		set amountReceived	= pRequest.forexRecords.GetAt(key).amountReceived
+		set amountPaid	= pRequest.forexRecords.GetAt(key).amountPaid
 		set term		= pRequest.forexRecords.GetAt(key).term
 		set spot		= pRequest.forexRecords.GetAt(key).spot
 		set confType	= pRequest.forexRecords.GetAt(key).confType
@@ -81,8 +81,8 @@ Method EnregEtRapproche(pRequest As CFAO.HUBIC.BofficeConf.tables.forexBatch, Ou
 			    	WHERE 
 				    		valueDate	= :valueDate
 				    	AND bank		= :bank
-				    	AND deviseBuy	= :deviseBuy
-				    	AND amountBuy	= :amountBuy
+				    	AND deviseReceived	= :deviseReceived
+				    	AND amountReceived	= :amountReceived
 				    	AND spot		= :spot
 				    	AND matchStatus	= 0
 				    	AND confType LIKE '%MEP%'
@@ -104,8 +104,8 @@ Method EnregEtRapproche(pRequest As CFAO.HUBIC.BofficeConf.tables.forexBatch, Ou
 			    	WHERE
 				    		valueDate	= :valueDate
 				    	AND bank		= :bank
-				    	AND deviseBuy	= :deviseBuy
-				    	AND amountBuy	= :amountBuy
+				    	AND deviseReceived	= :deviseReceived
+				    	AND amountReceived	= :amountReceived
 				    	AND spot		= :spot
 				    	AND matchStatus = 0
 		    	)
@@ -131,8 +131,8 @@ Method EnregEtRapproche(pRequest As CFAO.HUBIC.BofficeConf.tables.forexBatch, Ou
 			    	WHERE
 				    		valueDate	= :valueDate
 				    	AND bank		= :bank
-				    	AND deviseBuy	= :deviseBuy
-				    	AND amountBuy	= :amountBuy
+				    	AND deviseReceived	= :deviseReceived
+				    	AND amountReceived	= :amountReceived
 				    	AND spot		= :spot
 				    	AND matchStatus	= 0
 				    	AND	confType LIKE '%SWAP%'
@@ -154,8 +154,8 @@ Method EnregEtRapproche(pRequest As CFAO.HUBIC.BofficeConf.tables.forexBatch, Ou
 			    	WHERE 
 			    			valueDate	= :maturityDate
 				    	AND bank		= :bank
-				    	AND deviseBuy	= :deviseBuy
-				    	AND amountBuy	= :amountBuy
+				    	AND deviseReceived	= :deviseReceived
+				    	AND amountReceived	= :amountReceived
 				    	AND spot		= :term
 				    	AND matchStatus	= 0
 				    	AND confType LIKE '%SWAP%'
@@ -178,8 +178,8 @@ Method EnregEtRapproche(pRequest As CFAO.HUBIC.BofficeConf.tables.forexBatch, Ou
 			    	WHERE
 				    		valueDate	= :valueDate
 				    	AND bank		= :bank
-				    	AND deviseBuy	= :deviseBuy
-				    	AND amountBuy	= :amountBuy
+				    	AND deviseReceived	= :deviseReceived
+				    	AND amountReceived	= :amountReceived
 				    	AND spot		= :spot
 				    	AND matchStatus	= 0
 		    	)
@@ -200,8 +200,8 @@ Method EnregEtRapproche(pRequest As CFAO.HUBIC.BofficeConf.tables.forexBatch, Ou
 					WHERE
 							valueDate	= :maturityDate
 						AND bank		= :bank
-						AND deviseBuy	= :deviseBuy
-						AND amountBuy	= :amountBuy
+						AND deviseReceived	= :deviseReceived
+						AND amountReceived	= :amountReceived
 						AND term		= :term
 						AND matchStatus	= 0
 		    	)
@@ -236,8 +236,8 @@ Method EnregEtRapproche(pRequest As CFAO.HUBIC.BofficeConf.tables.forexBatch, Ou
 		    	WHERE
 			    		valueDate	= :valueDate
 			    	AND bank 		= :bank
-			    	AND deviseBuy	= :deviseBuy
-			    	AND amountBuy	= :amountBuy
+			    	AND deviseReceived	= :deviseReceived
+			    	AND amountReceived	= :amountReceived
 			    	AND spot 		= :spot
 			    	AND matchStatus = 0
 	    	)
@@ -259,8 +259,8 @@ Method EnregEtRapproche(pRequest As CFAO.HUBIC.BofficeConf.tables.forexBatch, Ou
 		    	WHERE
 		    			valueDate	= :maturityDate
 			    	AND bank		= :bank
-			    	AND deviseBuy	= :deviseBuy
-			    	AND amountBuy	= :amountBuy
+			    	AND deviseReceived	= :deviseReceived
+			    	AND amountReceived	= :amountReceived
 			    	AND spot		= :term
 			    	AND matchStatus	= 0
 	    	)

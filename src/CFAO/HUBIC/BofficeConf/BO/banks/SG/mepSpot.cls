@@ -31,10 +31,6 @@ Method saveAndCheckMatch(pRequest As %Stream.FileCharacter, Output pResponse As 
 			set data.reference = $replace($piece(line,":",2)," ","")		   		
 		}
 
-		// Operation reference
-		if $Find(line ,"Ref SG de Transaction") {
-		}
-
 		// Trade date (03-MAR-2014)
 		if $Find(line ,"Date de Conclusion") {
 			set data.tradeDate = ##class(CFAO.HUBIC.Outils).convertDateDDMmmmYYYY($piece(line,": ",2), "-", 3)
@@ -52,7 +48,7 @@ Method saveAndCheckMatch(pRequest As %Stream.FileCharacter, Output pResponse As 
 		}
 
 		// Received
-		if $Find(line ,"Montant et Devise à verser par la Partie A") > 0 {
+		if $Find(line ,"Montant et Devise à verser par la Partie A") {
 			set received = $replace($piece(line,":",2)," ","")
 			if received {
 				set data.amountReceived = $extract(received,1,*-3)

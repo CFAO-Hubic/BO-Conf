@@ -5,7 +5,13 @@ Parameter ADAPTER = "EnsLib.File.InboundAdapter";
 
 Property TargetConfigNames As %String;
 
-Parameter SETTINGS = "TargetConfigNames";
+Property pathPDF As %String;
+
+Property SMTP As %String;
+
+Property sender As %String;
+
+Parameter SETTINGS = "TargetConfigNames, pathPDF, SMTP, sender";
 
 /// Wrap the input stream object in a StreamContainer message object and send it.
 /// If the adapter has a value for ArchivePath, send async; otherwise send synchronously
@@ -13,7 +19,11 @@ Parameter SETTINGS = "TargetConfigNames";
 /// target Config Item is finished processing it.
 Method OnProcessInput(pInput As %Stream.Object, pOutput As %RegisteredObject) As %Status
 {
-	
+	set ^boConfSettings = {}
+	set ^boConfSettings.SMTP = ..SMTP
+	set ^boConfSettings.pathPDF = ..pathPDF
+	set ^boConfSettings.sender = ..sender
+
 	Set pRequest = ##class(%Stream.FileCharacter).%New()
 	Set LineNomDuFichier = pInput.Attributes("Filename")
 	

@@ -1,4 +1,4 @@
-Class CFAO.HUBIC.BofficeConf.BO.JrnForex.checkIfConfExist Extends Ens.BusinessOperation
+Class CFAO.HUBIC.BofficeConf.BO.forex.match Extends Ens.BusinessOperation
 {
 
 Parameter INVOCATION = "Queue";

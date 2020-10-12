@@ -6,7 +6,7 @@ Parameter INVOCATION = "Queue";
 Method saveAndCheckMatch(pRequest As %Stream.FileCharacter, Output pResponse As CFAO.HUBIC.BofficeConf.messages.checkBankMsg) As %Status
 {
 	set data = {}
-	set data.bank = "CACIB"
+	set data.bank = "CA"
 	set data.confType = "LEVEE"
 	set firstLine = 1
 	set lineInfo = 1
@@ -66,7 +66,7 @@ Method saveAndCheckMatch(pRequest As %Stream.FileCharacter, Output pResponse As 
             if $f(line, "Nous vendons") {
                 set received = $p(line,": ",2)
                 if received '= "" {
-                    set data.amountReceived = $p(received, " ", 2)
+                    set data.amountReceived = ..normalize($p(received, " ", 2))
                     set data.deviseReceived = $p(received, " ", 1)
                 }
             }
@@ -75,7 +75,7 @@ Method saveAndCheckMatch(pRequest As %Stream.FileCharacter, Output pResponse As 
             if $f(line, "Nous achetons") {
                 set paid = $p(line,": ",2)
                 if paid '= "" {
-                    set data.amountPaid = $p(paid, " ", 2)
+                    set data.amountPaid = ..normalize($p(paid, " ", 2))
                     set data.devisePaid = $p(paid, " ", 1)
                 }
             }

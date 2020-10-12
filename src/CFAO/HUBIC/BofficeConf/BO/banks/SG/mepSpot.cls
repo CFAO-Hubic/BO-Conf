@@ -51,7 +51,7 @@ Method saveAndCheckMatch(pRequest As %Stream.FileCharacter, Output pResponse As 
 		if $Find(line ,"Montant et Devise à verser par la Partie A") {
 			set received = $replace($piece(line,":",2)," ","")
 			if received {
-				set data.amountReceived = $extract(received,1,*-3)
+				set data.amountReceived = ..normalize($extract(received,1,*-3))
 				set data.deviseReceived = $extract(received,*-2,*)
 			}
 		}
@@ -60,7 +60,7 @@ Method saveAndCheckMatch(pRequest As %Stream.FileCharacter, Output pResponse As 
 		if $Find(line ,"Montant et Devise à verser par la Partie B") {
 			set paid = $replace($piece(line,":",2)," ","")
 			if paid {
-				set data.amountPaid =  $extract(paid,1,*-3)
+				set data.amountPaid = ..normalize($extract(paid,1,*-3))
 				set data.devisePaid = $extract(paid,*-2,*)
 			}
 		}

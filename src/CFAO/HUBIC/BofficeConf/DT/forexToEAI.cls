@@ -40,8 +40,8 @@ XData DTL [ XMLNamespace = "http://www.intersystems.com/dtl" ]
 <assign value='"MEP TERME"' property='target.forexRecords.(k1).confType' action='set' />
 <assign value='source.Records.(k1).CURRENCY1SHORTNAME' property='target.forexRecords.(k1).devisePaid' action='set' />
 <assign value='source.Records.(k1).CURRENCY2SHORTNAME' property='target.forexRecords.(k1).deviseReceived' action='set' />
-<assign value='source.Records.(k1).AMOUNT1' property='target.forexRecords.(k1).amountPaid' action='set' />
-<assign value='source.Records.(k1).AMOUNT2' property='target.forexRecords.(k1).amountReceived' action='set' />
+<assign value='$NORMALIZE(source.Records.(k1).AMOUNT1, -1)' property='target.forexRecords.(k1).amountPaid' action='set' />
+<assign value='$NORMALIZE(source.Records.(k1).AMOUNT2, -1)' property='target.forexRecords.(k1).amountReceived' action='set' />
 </true>
 </if>
 
@@ -51,8 +51,8 @@ XData DTL [ XMLNamespace = "http://www.intersystems.com/dtl" ]
 <assign value='"MEP TERME"' property='target.forexRecords.(k1).confType' action='set' />
 <assign value='source.Records.(k1).CURRENCY1SHORTNAME' property='target.forexRecords.(k1).deviseReceived' action='set' />
 <assign value='source.Records.(k1).CURRENCY2SHORTNAME' property='target.forexRecords.(k1).devisePaid' action='set' />
-<assign value='source.Records.(k1).AMOUNT1' property='target.forexRecords.(k1).amountReceived' action='set' />
-<assign value='source.Records.(k1).AMOUNT2' property='target.forexRecords.(k1).amountPaid' action='set' />
+<assign value='$NORMALIZE(source.Records.(k1).AMOUNT1, -1)' property='target.forexRecords.(k1).amountReceived' action='set' />
+<assign value='$NORMALIZE(source.Records.(k1).AMOUNT2, -1)' property='target.forexRecords.(k1).amountPaid' action='set' />
 </true>
 </if>
 
@@ -62,8 +62,8 @@ XData DTL [ XMLNamespace = "http://www.intersystems.com/dtl" ]
 <assign value='"MEP SPOT"' property='target.forexRecords.(k1).confType' action='set' />
 <assign value='source.Records.(k1).CURRENCY1SHORTNAME' property='target.forexRecords.(k1).devisePaid' action='set' />
 <assign value='source.Records.(k1).CURRENCY2SHORTNAME' property='target.forexRecords.(k1).deviseReceived' action='set' />
-<assign value='source.Records.(k1).AMOUNT1' property='target.forexRecords.(k1).amountPaid' action='set' />
-<assign value='source.Records.(k1).AMOUNT2' property='target.forexRecords.(k1).amountReceived' action='set' />
+<assign value='$NORMALIZE(source.Records.(k1).AMOUNT1, -1)' property='target.forexRecords.(k1).amountPaid' action='set' />
+<assign value='$NORMALIZE(source.Records.(k1).AMOUNT2, -1)' property='target.forexRecords.(k1).amountReceived' action='set' />
 </true>
 </if>
 
@@ -73,8 +73,8 @@ XData DTL [ XMLNamespace = "http://www.intersystems.com/dtl" ]
 <assign value='"MEP SPOT ANN"' property='target.forexRecords.(k1).confType' action='set' />
 <assign value='source.Records.(k1).CURRENCY1SHORTNAME' property='target.forexRecords.(k1).devisePaid' action='set' />
 <assign value='source.Records.(k1).CURRENCY2SHORTNAME' property='target.forexRecords.(k1).deviseReceived' action='set' />
-<assign value='source.Records.(k1).AMOUNT1' property='target.forexRecords.(k1).amountPaid' action='set' />
-<assign value='source.Records.(k1).AMOUNT2' property='target.forexRecords.(k1).amountReceived' action='set' />
+<assign value='$NORMALIZE(source.Records.(k1).AMOUNT1, -1)' property='target.forexRecords.(k1).amountPaid' action='set' />
+<assign value='$NORMALIZE(source.Records.(k1).AMOUNT2, -1)' property='target.forexRecords.(k1).amountReceived' action='set' />
 </true>
 </if>
 
@@ -84,8 +84,8 @@ XData DTL [ XMLNamespace = "http://www.intersystems.com/dtl" ]
 <assign value='"MEP SPOT"' property='target.forexRecords.(k1).confType' action='set' />
 <assign value='source.Records.(k1).CURRENCY1SHORTNAME' property='target.forexRecords.(k1).deviseReceived' action='set' />
 <assign value='source.Records.(k1).CURRENCY2SHORTNAME' property='target.forexRecords.(k1).devisePaid' action='set' />
-<assign value='source.Records.(k1).AMOUNT1' property='target.forexRecords.(k1).amountReceived' action='set' />
-<assign value='source.Records.(k1).AMOUNT2' property='target.forexRecords.(k1).amountPaid' action='set' />
+<assign value='$NORMALIZE(source.Records.(k1).AMOUNT1, -1)' property='target.forexRecords.(k1).amountReceived' action='set' />
+<assign value='$NORMALIZE(source.Records.(k1).AMOUNT2, -1)' property='target.forexRecords.(k1).amountPaid' action='set' />
 </true>
 </if>
 
@@ -95,8 +95,8 @@ XData DTL [ XMLNamespace = "http://www.intersystems.com/dtl" ]
 <assign value='"MEP SPOT ANN"' property='target.forexRecords.(k1).confType' action='set' />
 <assign value='source.Records.(k1).CURRENCY1SHORTNAME' property='target.forexRecords.(k1).deviseReceived' action='set' />
 <assign value='source.Records.(k1).CURRENCY2SHORTNAME' property='target.forexRecords.(k1).devisePaid' action='set' />
-<assign value='source.Records.(k1).AMOUNT1' property='target.forexRecords.(k1).amountReceived' action='set' />
-<assign value='source.Records.(k1).AMOUNT2' property='target.forexRecords.(k1).amountPaid' action='set' />
+<assign value='$NORMALIZE(source.Records.(k1).AMOUNT1, -1)' property='target.forexRecords.(k1).amountReceived' action='set' />
+<assign value='$NORMALIZE(source.Records.(k1).AMOUNT2, -1)' property='target.forexRecords.(k1).amountPaid' action='set' />
 </true>
 </if>
 
@@ -106,8 +106,8 @@ XData DTL [ XMLNamespace = "http://www.intersystems.com/dtl" ]
 <assign value='"PRORO"' property='target.forexRecords.(k1).confType' action='set' />
 <assign value='source.Records.(k1).CURRENCY1SHORTNAME' property='target.forexRecords.(k1).devisePaid' action='set' />
 <assign value='source.Records.(k1).CURRENCY2SHORTNAME' property='target.forexRecords.(k1).deviseReceived' action='set' />
-<assign value='source.Records.(k1).AMOUNT1' property='target.forexRecords.(k1).amountPaid' action='set' />
-<assign value='source.Records.(k1).AMOUNT2' property='target.forexRecords.(k1).amountReceived' action='set' />
+<assign value='$NORMALIZE(source.Records.(k1).AMOUNT1, -1)' property='target.forexRecords.(k1).amountPaid' action='set' />
+<assign value='$NORMALIZE(source.Records.(k1).AMOUNT2, -1)' property='target.forexRecords.(k1).amountReceived' action='set' />
 </true>
 </if>
 
@@ -117,8 +117,8 @@ XData DTL [ XMLNamespace = "http://www.intersystems.com/dtl" ]
 <assign value='"PRORO"' property='target.forexRecords.(k1).confType' action='set' />
 <assign value='source.Records.(k1).CURRENCY1SHORTNAME' property='target.forexRecords.(k1).deviseReceived' action='set' />
 <assign value='source.Records.(k1).CURRENCY2SHORTNAME' property='target.forexRecords.(k1).devisePaid' action='set' />
-<assign value='source.Records.(k1).AMOUNT1' property='target.forexRecords.(k1).amountReceived' action='set' />
-<assign value='source.Records.(k1).AMOUNT2' property='target.forexRecords.(k1).amountPaid' action='set' />
+<assign value='$NORMALIZE(source.Records.(k1).AMOUNT1, -1)' property='target.forexRecords.(k1).amountReceived' action='set' />
+<assign value='$NORMALIZE(source.Records.(k1).AMOUNT2, -1)' property='target.forexRecords.(k1).amountPaid' action='set' />
 </true>
 </if>
 
@@ -128,8 +128,8 @@ XData DTL [ XMLNamespace = "http://www.intersystems.com/dtl" ]
 <assign value='"LEVEE"' property='target.forexRecords.(k1).confType' action='set' />
 <assign value='source.Records.(k1).CURRENCY1SHORTNAME' property='target.forexRecords.(k1).deviseReceived' action='set' />
 <assign value='source.Records.(k1).CURRENCY2SHORTNAME' property='target.forexRecords.(k1).devisePaid' action='set' />
-<assign value='source.Records.(k1).AMOUNT1' property='target.forexRecords.(k1).amountReceived' action='set' />
-<assign value='source.Records.(k1).AMOUNT2' property='target.forexRecords.(k1).amountPaid' action='set' />
+<assign value='$NORMALIZE(source.Records.(k1).AMOUNT1, -1)' property='target.forexRecords.(k1).amountReceived' action='set' />
+<assign value='$NORMALIZE(source.Records.(k1).AMOUNT2, -1)' property='target.forexRecords.(k1).amountPaid' action='set' />
 </true>
 </if>
 
@@ -139,8 +139,8 @@ XData DTL [ XMLNamespace = "http://www.intersystems.com/dtl" ]
 <assign value='"LEVEE ANN"' property='target.forexRecords.(k1).confType' action='set' />
 <assign value='source.Records.(k1).CURRENCY1SHORTNAME' property='target.forexRecords.(k1).deviseReceived' action='set' />
 <assign value='source.Records.(k1).CURRENCY2SHORTNAME' property='target.forexRecords.(k1).devisePaid' action='set' />
-<assign value='source.Records.(k1).AMOUNT1' property='target.forexRecords.(k1).amountReceived' action='set' />
-<assign value='source.Records.(k1).AMOUNT2' property='target.forexRecords.(k1).amountPaid' action='set' />
+<assign value='$NORMALIZE(source.Records.(k1).AMOUNT1, -1)' property='target.forexRecords.(k1).amountReceived' action='set' />
+<assign value='$NORMALIZE(source.Records.(k1).AMOUNT2, -1)' property='target.forexRecords.(k1).amountPaid' action='set' />
 </true>
 </if>
 
@@ -150,8 +150,8 @@ XData DTL [ XMLNamespace = "http://www.intersystems.com/dtl" ]
 <assign value='"LEVEE"' property='target.forexRecords.(k1).confType' action='set' />
 <assign value='source.Records.(k1).CURRENCY1SHORTNAME' property='target.forexRecords.(k1).devisePaid' action='set' />
 <assign value='source.Records.(k1).CURRENCY2SHORTNAME' property='target.forexRecords.(k1).deviseReceived' action='set' />
-<assign value='source.Records.(k1).AMOUNT1' property='target.forexRecords.(k1).amountPaid' action='set' />
-<assign value='source.Records.(k1).AMOUNT2' property='target.forexRecords.(k1).amountReceived' action='set' />
+<assign value='$NORMALIZE(source.Records.(k1).AMOUNT1, -1)' property='target.forexRecords.(k1).amountPaid' action='set' />
+<assign value='$NORMALIZE(source.Records.(k1).AMOUNT2, -1)' property='target.forexRecords.(k1).amountReceived' action='set' />
 </true>
 </if>
 
@@ -161,8 +161,8 @@ XData DTL [ XMLNamespace = "http://www.intersystems.com/dtl" ]
 <assign value='"LEVEE ANN"' property='target.forexRecords.(k1).confType' action='set' />
 <assign value='source.Records.(k1).CURRENCY1SHORTNAME' property='target.forexRecords.(k1).devisePaid' action='set' />
 <assign value='source.Records.(k1).CURRENCY2SHORTNAME' property='target.forexRecords.(k1).deviseReceived' action='set' />
-<assign value='source.Records.(k1).AMOUNT1' property='target.forexRecords.(k1).amountPaid' action='set' />
-<assign value='source.Records.(k1).AMOUNT2' property='target.forexRecords.(k1).amountReceived' action='set' />
+<assign value='$NORMALIZE(source.Records.(k1).AMOUNT1, -1)' property='target.forexRecords.(k1).amountPaid' action='set' />
+<assign value='$NORMALIZE(source.Records.(k1).AMOUNT2, -1)' property='target.forexRecords.(k1).amountReceived' action='set' />
 </true>
 </if>
 
@@ -172,8 +172,8 @@ XData DTL [ XMLNamespace = "http://www.intersystems.com/dtl" ]
 <assign value='"SWAP"' property='target.forexRecords.(k1).confType' action='set' />
 <assign value='source.Records.(k1).CURRENCY1SHORTNAME' property='target.forexRecords.(k1).deviseReceived' action='set' />
 <assign value='source.Records.(k1).CURRENCY2SHORTNAME' property='target.forexRecords.(k1).devisePaid' action='set' />
-<assign value='source.Records.(k1).AMOUNT1' property='target.forexRecords.(k1).amountReceived' action='set' />
-<assign value='source.Records.(k1).AMOUNT2' property='target.forexRecords.(k1).amountPaid' action='set' />
+<assign value='$NORMALIZE(source.Records.(k1).AMOUNT1, -1)' property='target.forexRecords.(k1).amountReceived' action='set' />
+<assign value='$NORMALIZE(source.Records.(k1).AMOUNT2, -1)' property='target.forexRecords.(k1).amountPaid' action='set' />
 </true>
 </if>
 
@@ -183,8 +183,8 @@ XData DTL [ XMLNamespace = "http://www.intersystems.com/dtl" ]
 <assign value='"SWAP"' property='target.forexRecords.(k1).confType' action='set' />
 <assign value='source.Records.(k1).CURRENCY1SHORTNAME' property='target.forexRecords.(k1).devisePaid' action='set' />
 <assign value='source.Records.(k1).CURRENCY2SHORTNAME' property='target.forexRecords.(k1).deviseReceived' action='set' />
-<assign value='source.Records.(k1).AMOUNT1' property='target.forexRecords.(k1).amountPaid' action='set' />
-<assign value='source.Records.(k1).AMOUNT2' property='target.forexRecords.(k1).amountReceived' action='set' />
+<assign value='$NORMALIZE(source.Records.(k1).AMOUNT1, -1)' property='target.forexRecords.(k1).amountPaid' action='set' />
+<assign value='$NORMALIZE(source.Records.(k1).AMOUNT2, -1)' property='target.forexRecords.(k1).amountReceived' action='set' />
 </true>
 </if>
 

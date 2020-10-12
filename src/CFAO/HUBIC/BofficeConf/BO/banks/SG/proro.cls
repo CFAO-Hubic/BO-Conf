@@ -73,7 +73,7 @@ Method saveAndCheckMatch(pRequest As %Stream.FileCharacter, Output pResponse As 
 		}
 
 		if lineReceived = i {
-			set data.amountReceived =  $p(line," ",1)
+			set data.amountReceived = ..normalize($p(line," ",1))
 			set data.deviseReceived = $p(line," ",2)
 		}
 
@@ -83,7 +83,7 @@ Method saveAndCheckMatch(pRequest As %Stream.FileCharacter, Output pResponse As 
 		}
 
 		If linePaid = i {
-			set data.amountPaid =  $p(line," ",1)
+			set data.amountPaid = ..normalize($p(line," ",1))
 			set data.devisePaid = $p(line," ",2)
 		}
 	}

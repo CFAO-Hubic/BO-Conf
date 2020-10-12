@@ -64,23 +64,20 @@ Method saveAndCheckMatch(pRequest As %Stream.FileCharacter, Output pResponse As 
 		}
 
 		if i = lineReceived {
-			$$$LOGINFO("Ligne reçue : " _ line)
 			set buyed = $replace($p(line,":",2)," ","")
-			set data.amountReceived = $extract(buyed,1,*-3)
+			set data.amountReceived = ..normalize($extract(buyed,1,*-3))
 			set data.deviseReceived = $extract(buyed,*-2,*)
 			set lineReceived = 0
 		}
 
 		if i = linePaid {
-			$$$LOGINFO("Ligne versée : " _ line)
 			set selled = $replace($p(line,":",2)," ","")
-			set data.amountPaid = $extract(selled,1,*-3)
+			set data.amountPaid = ..normalize($extract(selled,1,*-3))
 			set data.devisePaid = $extract(selled,*-2,*)
 			set linePaid = 0
 		}
 
 		if i = lineRate {
-			$$$LOGINFO("Ligne taux : " _ line)
 			set data.spot = $replace($p(line,":",2)," ","") * 1
 			if $Extract(data.spot,1,1)="."{
 				set data.spot = "0" _ data.spot
@@ -89,7 +86,6 @@ Method saveAndCheckMatch(pRequest As %Stream.FileCharacter, Output pResponse As 
 		}
 
 		if i = lineMaturityDate {
-			$$$LOGINFO("Ligne date maturité : " _ line)
 			set data.maturityDate =  ##class(CFAO.HUBIC.Outils).convertDateDDMmmmYYYY($p(line,": ",2), "-", 3)
 			set lineMaturityDate = 0
 			set lineInfo = 0

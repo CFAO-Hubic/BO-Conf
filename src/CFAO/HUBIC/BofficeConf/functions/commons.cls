@@ -1,4 +1,4 @@
-Class CFAO.HUBIC.BofficeConf.functions.commons
+Class CFAO.HUBIC.BofficeConf.functions.commons Extends Ens.Rule.FunctionSet
 {
 
 ClassMethod sendConfEmail(idEaiBank As %String) As %Status
@@ -7,9 +7,9 @@ ClassMethod sendConfEmail(idEaiBank As %String) As %Status
 	Set DestinataireMail = ""
 	Set DestinataireCopy = ""
 	Set NomBanque = ""
-	set RepertoirePJ = "D:\HUBIC\BackOfficeConf\ConfirmationPDFtraité\"
-	Set ExpediteurMail = "confirmationforex@cfao.com"
-	set SMTP = "10.0.241.3"
+	set RepertoirePJ = ^boConfSettings.pathPDF
+	Set ExpediteurMail = ^boConfSettings.sender
+	set SMTP = ^boConfSettings.SMTP
 
 	Set lineBank =  ##class(CFAO.HUBIC.BofficeConf.tables.bank).%OpenId(idEaiBank)
 	Set lineForex =  ##class(CFAO.HUBIC.BofficeConf.tables.forex).%OpenId(lineBank.idEaiForex)
@@ -29,20 +29,20 @@ ClassMethod sendConfEmail(idEaiBank As %String) As %Status
 		WHERE CodeBanque = :lineBank.bank
 	)
 
-	If $Replace(DestinataireMail," ","") '= "" {
+	If $Replace(DestinataireMail," ","") = "" {
 		do ..updateEmailStatus(idEaiBank, 2)
 		return "Pas de destinataire"
 	}
 
 	Set ObjetMail = "CFAO/"_ NomBanque _" - Transaction confirmation "_lineBank.contrat
-	Set nomPJ = $Replace(lineBank.fileName _ ".pdf"," ","_")
+	Set nomPJ = $Replace(lineBank.confFileName _ ".pdf"," ","_")
 
 	// Contenue du mail
 	Set ContenuDuMail = ##class(%Stream.GlobalCharacter).%New()
 	Do ContenuDuMail.Write(
 		 "Bonjour,"_$c(13,10)
 		_$c(13,10)
-		_"Nous confirmons l'opération dont la référence est "_Contrat_".Vous trouverez en pièce jointe la confirmation."_$c(13,10)
+		_"Nous confirmons l'opération dont la référence est " _ lineBank.contrat _ ".Vous trouverez en pièce jointe la confirmation."_$c(13,10)
 		_$c(13,10)
 		_"Ceci est un mail automatique, merci de ne pas répondre. En cas de problème, adresser votre demande à confirmationforex@cfao.com."_$c(13,10)
 		_$c(13,10)
@@ -50,7 +50,7 @@ ClassMethod sendConfEmail(idEaiBank As %String) As %Status
 		_$c(13,10)
 		_"Good aftertoon,"_$c(13,10)
 		_$c(13,10)
-		_"We hereby confirm the deal under ref "_Contrat_". Please find attached the confirmation."_$c(13,10)_$c(13,10)
+		_"We hereby confirm the deal under ref " _ lineBank.contrat _ ". Please find attached the confirmation."_$c(13,10)_$c(13,10)
 		_"This is an automatique email, please do not reply. If you have any issues, please contact us at confirmationforex@cfao.com."_$c(13,10)
 		_$c(13,10)
 		_"Service Back Office Forex"_$c(13,10)
@@ -61,7 +61,7 @@ ClassMethod sendConfEmail(idEaiBank As %String) As %Status
 		_"confirmationforex@cfao.com  / www.cfaogroup.com"_$c(13,10)
 	)
 
-	Set tSC = ##class(CFAO.HUBIC.Outils).SendEmailGeneric(ServeurSMTP,DestinataireMail,DestinataireMailCopy,ExpediteurMail,ObjetMail,ContenuDuMail,RepertoirePJ,nomPJ)
+	Set tSC = ##class(CFAO.HUBIC.Outils).SendEmailGeneric(SMTP,DestinataireMail,DestinataireMailCopy,ExpediteurMail,ObjetMail,ContenuDuMail,RepertoirePJ,nomPJ)
 
 	set repertoireSourcePJPDF = RepertoirePJ_nomPJ
 	set repertoireArchivePDF = "\\10.0.60.51\root\Comptabilite\EMIR\ArchiveConfirmationBanquePDF\"_nomPJ

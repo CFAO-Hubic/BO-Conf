@@ -49,13 +49,13 @@ Method saveAndCheckMatch(pRequest As %Stream.FileCharacter, Output pResponse As 
 
 		if i = lineReceived {
 			set buyed = $replace($p(line,":",2)," ","")
-			set data.amountReceived = $e(buyed,1,*-3)
+			set data.amountReceived = ..normalize($e(buyed,1,*-3))
 			set data.deviseReceived = $e(buyed,*-2,*)
 		}
 
 		if i = linePaid {
 			set selled = $replace($p(line,":",2)," ","")
-			set data.amountPaid = $e(selled,1,*-3)
+			set data.amountPaid = ..normalize($e(selled,1,*-3))
 			set data.devisePaid = $e(selled,*-2,*)
 		}
 

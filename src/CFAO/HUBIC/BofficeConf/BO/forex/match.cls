@@ -23,21 +23,25 @@ Parameter SETTINGS = "pathPDF, SMTP, sender";
 /// Method EnregEtRapprochePJ(pRequest As CFAO.HUBIC.EMIRtools.recordMap.JournalForex.Batch, Output pResponse As Ens.StringResponse) As %Status
 Method check(pRequest As CFAO.HUBIC.BofficeConf.tables.forexBatch, Output pResponse As CFAO.HUBIC.BofficeConf.messages.checkForexMsg) As %Status
 {
+	$$$LOGINFO("-----------------------------------")
+
 	set ^boConfSettings = {}
 	set ^boConfSettings.SMTP = ..SMTP
 	set ^boConfSettings.pathPDF = ..pathPDF
-	//set ^boConfSettings.sender = ..sender
+	set ^boConfSettings.sender = ..sender
 
 	set errorsForex = []
 	set errorsBank = []
-
-	set key = pRequest.forexRecords.Next()
+	set key	= pRequest.forexRecords.Next()
 
 	while(key '= "") {
+		set key				= pRequest.forexRecords.Next()
 		set idEaiForex		= pRequest.forexRecords.GetAt(key).%Id()
 		set idForex			= pRequest.forexRecords.GetAt(key).idForex
 		set bank			= pRequest.forexRecords.GetAt(key).bank
 		set confType		= pRequest.forexRecords.GetAt(key).confType
+		
+		$$$LOGINFO(bank _ " | " _ confType _ " | " _ key)
 
 		// Spot type
 		if (((confType = "LEVEE") || (confType = "LEVEE ANN")) && ((bank = "SG") || (bank = "CA")))
@@ -45,9 +49,11 @@ Method check(pRequest As CFAO.HUBIC.BofficeConf.tables.forexBatch, Output pRespo
 		|| (((confType = "MEP SPOT ANN") || (confType = "MEP SPOT") || (confType = "LEVEE")
 		|| (confType = "LEVEE ANN") || (confType = "PRORO")) && (bank = "BNP")) {
 
-			set data = ..match(pRequest, 0)
+			$$$LOGINFO("spot")
 
-			if data.match continue
+			set data = ..match(pRequest, key, 0)
+
+			if 'data.match continue
 
 			set data.idEaiForex = idEaiForex
 			set data.idForex = idForex
@@ -65,11 +71,12 @@ Method check(pRequest As CFAO.HUBIC.BofficeConf.tables.forexBatch, Output pRespo
 
 		// SWAP type (the line must find 2 conf : spot and term)
 		} elseif ((confType = "SWAP") && ((bank = "CA") || (bank = "SG"))) {
-			set spot = ..match(pRequest, 0)
+			$$$LOGINFO("swap")
+			set spot = ..match(pRequest, key, 0)
 			set spot.idEaiForex = idEaiForex
 			set spot.idForex = idForex
 
-			set term = ..match(pRequest, 1)
+			set term = ..match(pRequest, key, 1)
 			set term.idEaiForex = idEaiForex
 			set term.idForex = idForex
 
@@ -103,9 +110,10 @@ Method check(pRequest As CFAO.HUBIC.BofficeConf.tables.forexBatch, Output pRespo
 
 		// Term type
 		} else {
-			set data = ..match(pRequest, 1)
+			$$$LOGINFO("term")
+			set data = ..match(pRequest, key, 1)
 
-			if data.match continue
+			if 'data.match continue
 
 			set data.idEaiForex = idEaiForex
 			set data.idForex = idForex
@@ -121,8 +129,6 @@ Method check(pRequest As CFAO.HUBIC.BofficeConf.tables.forexBatch, Output pRespo
 			set tSC = ##class(CFAO.HUBIC.BofficeConf.functions.commons).sendConfEmail(data.idEaiBank)
 			if 'tSC $$$LOGINFO("Erreur lors de l'envoie de l'email (ID : " _ data.idEaiForex _ $c(13,10) _ tCS)
 		}
-
-		set key = pRequest.forexRecords.Next(key)
 	}
 
 	set pResponse = ##class(CFAO.HUBIC.BofficeConf.messages.checkForexMsg).%New()
@@ -138,7 +144,7 @@ Method check(pRequest As CFAO.HUBIC.BofficeConf.tables.forexBatch, Output pRespo
 	Quit $$$OK
 }
 
-ClassMethod match(pRequest As CFAO.HUBIC.BofficeConf.tables.forexBatch, type = 0) As %Library.DynamicArray
+ClassMethod match(pRequest As CFAO.HUBIC.BofficeConf.tables.forexBatch, key, type = 0) As %Library.DynamicArray
 {
 	set bank			= pRequest.forexRecords.GetAt(key).bank
 	set tradeDate		= pRequest.forexRecords.GetAt(key).tradeDate
@@ -154,10 +160,10 @@ ClassMethod match(pRequest As CFAO.HUBIC.BofficeConf.tables.forexBatch, type = 0
 	set request =
 		"SELECT"
 			_ " COUNT(*) AS ""match"","
-			_ " ID AS ""idEaiForex"","
+			_ " ID AS ""idEaiBank"","
 			_ " confFileName,"
 			_ " contrat"
-		_ " FROM CFAO_HUBIC_BofficeConf_tables.forex"
+		_ " FROM CFAO_HUBIC_BofficeConf_tables.bank"
 		_ " WHERE"
 			_ " matchStatus = 0"
 			_ " AND bank			= '" _ bank				_ "'"
@@ -178,6 +184,8 @@ ClassMethod match(pRequest As CFAO.HUBIC.BofficeConf.tables.forexBatch, type = 0
 			_ " AND maturityDate 	= '" _ maturityDate 	_ "'"
 			_ " AND term 		 	= '" _ term				_ "'"
 	}
+
+	$$$LOGINFO(request)
 
 	set data = ##class(CFAO.HUBIC.Outils).queryJSON(request)
 

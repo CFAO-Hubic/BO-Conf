@@ -96,6 +96,22 @@ ClassMethod save(data As %Library.DynamicArray, match As %Integer) As %Status
 	quit newLine.%Id()
 }
 
+ClassMethod match(data As %Library.DynamicArray) As %Status
+{
+	if data.idEaiBank = "" quit "The Id in the data provided is null"
+	if 'data.match quit 1
+
+	set line = ..%Open(data.idEaiBank)
+
+	set line.matchStatus = 1
+	set line.idForex = data.idForex
+	set line.idEaiForex = data.idEaiForex
+
+	set tSC = line.%Save()
+
+	quit tSC
+}
+
 Storage Default
 {
 <Data name="bankDefaultData">

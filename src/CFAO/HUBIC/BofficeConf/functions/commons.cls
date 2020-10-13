@@ -11,8 +11,10 @@ ClassMethod sendConfEmail(idEaiBank As %String) As %Status
 	Set ExpediteurMail = ^boConfSettings.sender
 	set SMTP = ^boConfSettings.SMTP
 
-	Set lineBank =  ##class(CFAO.HUBIC.BofficeConf.tables.bank).%OpenId(idEaiBank)
-	Set lineForex =  ##class(CFAO.HUBIC.BofficeConf.tables.forex).%OpenId(lineBank.idEaiForex)
+	Set lineBank = ##class(CFAO.HUBIC.BofficeConf.tables.bank).%OpenId(idEaiBank)
+	if lineBank.idEaiForex = "" return "Line hasn't been matched yet"
+
+	Set lineForex = ##class(CFAO.HUBIC.BofficeConf.tables.forex).%OpenId(lineBank.idEaiForex)
 
 	&SQL(
 		SELECT

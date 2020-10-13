@@ -3,12 +3,13 @@ Class CFAO.HUBIC.BofficeConf.BO.forex.match Extends Ens.BusinessOperation
 
 Parameter INVOCATION = "Queue";
 
-Property ServeurSMTP As %String;
+Property pathPDF As %String;
 
-/// Repertoire des pieces jointes pour l'envoi par mail
-Property RepertoirePJ As %String;
+Property SMTP As %String;
 
-Parameter SETTINGS = "ServeurSMTP,RepertoirePJ";
+Property sender As %String;
+
+Parameter SETTINGS = "pathPDF, SMTP, sender";
 
 /// Opérations : Enreg Back Order Confirmation Journal Forex
 /// 
@@ -20,314 +21,113 @@ Parameter SETTINGS = "ServeurSMTP,RepertoirePJ";
 /// /Method EnregEtRapprochePJ(pRequest As %Library.FileCharacterStream, Output pResponse As %Library.Persistent) As %Status
 /// This is the default message handler.  All request types not declared in the message map are delivered here
 /// Method EnregEtRapprochePJ(pRequest As CFAO.HUBIC.EMIRtools.recordMap.JournalForex.Batch, Output pResponse As Ens.StringResponse) As %Status
-Method EnregEtRapproche(pRequest As CFAO.HUBIC.BofficeConf.tables.forexBatch, Output pResponse As CFAO.HUBIC.BofficeConf.messages.checkForexMsg) As %Status
+Method check(pRequest As CFAO.HUBIC.BofficeConf.tables.forexBatch, Output pResponse As CFAO.HUBIC.BofficeConf.messages.checkForexMsg) As %Status
 {
+	set ^boConfSettings = {}
+	set ^boConfSettings.SMTP = ..SMTP
+	set ^boConfSettings.pathPDF = ..pathPDF
+	//set ^boConfSettings.sender = ..sender
+
 	set errorsForex = []
 	set errorsBank = []
-
-	set matchDate = $ZDATETIME($h, 3)
 
 	set key = pRequest.forexRecords.Next()
 
 	while(key '= "") {
-		set idForex			= pRequest.forexRecords.GetAt(key).idForex
 		set idEaiForex		= pRequest.forexRecords.GetAt(key).%Id()
+		set idForex			= pRequest.forexRecords.GetAt(key).idForex
 		set bank			= pRequest.forexRecords.GetAt(key).bank
-		set tradeDate		= pRequest.forexRecords.GetAt(key).tradeDate
-		set maturityDate	= pRequest.forexRecords.GetAt(key).maturityDate
-		set valueDate		= pRequest.forexRecords.GetAt(key).valueDate
-		set deviseReceived	= pRequest.forexRecords.GetAt(key).deviseReceived
-		set devisePaid		= pRequest.forexRecords.GetAt(key).devisePaid
-		set amountReceived	= pRequest.forexRecords.GetAt(key).amountReceived
-		set amountPaid		= pRequest.forexRecords.GetAt(key).amountPaid
-		set term			= pRequest.forexRecords.GetAt(key).term
-		set spot			= pRequest.forexRecords.GetAt(key).spot
 		set confType		= pRequest.forexRecords.GetAt(key).confType
 
-		set (
-			match,
-			matchSpot,
-			matchTerm,
-			twoConfNeeded,
-			onlyOnePdf
-		) = 0
-
-		set (
-			confFileName,
-			confFileNameSpot,
-			confFileNameTerm,
-			contrat,
-			contratSpot,
-			contratTerm
-		) = ""
-
-		if (((confType = "LEVEE") || (confType = "LEVEE ANN")) && ((bank = "NAT") || (bank = "SG") || (bank = "CA")))
+		// Spot type
+		if (((confType = "LEVEE") || (confType = "LEVEE ANN")) && ((bank = "SG") || (bank = "CA")))
 		|| (((confType = "MEP SPOT ANN") || (confType = "MEP SPOT")) && ((bank = "CA") || (bank = "SG"))) 
-		|| (((confType = "MEP SPOT ANN") || (confType = "MEP SPOT")) && (bank = "BNP")) {
+		|| (((confType = "MEP SPOT ANN") || (confType = "MEP SPOT") || (confType = "LEVEE")
+		|| (confType = "LEVEE ANN") || (confType = "PRORO")) && (bank = "BNP")) {
 
-			if (confType = "MEP SPOT") && (bank = "SG"){
-	    		&sql(
-		    		SELECT
-		    			COUNT(*),
-		    			ID,
-		    			confFileName,
-		    			contrat 
-		    		INTO
-		    			:match,
-		    			:idEaiBank,
-		    			:confFileName,
-		    			:contrat
-		    		FROM CFAO_HUBIC_BofficeConf_tables.bank
-			    	WHERE 
-				    		valueDate	= :valueDate
-				    	AND bank		= :bank
-				    	AND deviseReceived	= :deviseReceived
-				    	AND amountReceived	= :amountReceived
-				    	AND spot		= :spot
-				    	AND matchStatus	= 0
-				    	AND confType LIKE '%MEP%'
-		    	)
+			set data = ..match(pRequest, 0)
 
+			if data.match continue
+
+			set data.idEaiForex = idEaiForex
+			set data.idForex = idForex
+
+			set tSC = ##class(CFAO.HUBIC.BofficeConf.tables.forex).match(data, data.match)
+			if 'tSC do errorsForex.%Push(data.idForex)
+
+			set tSC2 = ##class(CFAO.HUBIC.BofficeConf.tables.bank).match(data)
+			if 'tSC2 do errorsBank.%Push(data.idEaiBank)
+
+			if 'tSC || 'tSC2 continue
+
+			set tSC = ##class(CFAO.HUBIC.BofficeConf.functions.commons).sendConfEmail(data.idEaiBank)
+			if 'tSC $$$LOGINFO("Erreur lors de l'envoie de l'email (ID : " _ data.idEaiForex _ $c(13,10) _ tCS)
+
+		// SWAP type (the line must find 2 conf : spot and term)
+		} elseif ((confType = "SWAP") && ((bank = "CA") || (bank = "SG"))) {
+			set spot = ..match(pRequest, 0)
+			set spot.idEaiForex = idEaiForex
+			set spot.idForex = idForex
+
+			set term = ..match(pRequest, 1)
+			set term.idEaiForex = idEaiForex
+			set term.idForex = idForex
+
+			if (spot.match && 'term.match) set spot.match = 9999
+			if ('spot.match && term.match) set term.match = 9999
+
+			set tSC = ##class(CFAO.HUBIC.BofficeConf.tables.forex).match(spot, spot.match)
+			if 'tSC do errorsForex.%Push(data.idForex _ "(spot)")
+
+			set tSC2 = ##class(CFAO.HUBIC.BofficeConf.tables.forex).match(term, term.match)
+			if 'tSC2 do errorsForex.%Push(data.idForex _ "(term)")
+
+			set tSC3 = ##class(CFAO.HUBIC.BofficeConf.tables.bank).match(spot)
+			if 'tSC3 do errorsBank.%Push(spot.idEaiBank _ "(spot)")
+
+			set tSC4 = ##class(CFAO.HUBIC.BofficeConf.tables.bank).match(term)
+			if 'tSC4 do errorsBank.%Push(term.idEaiBank _ "(term)")
+
+			if 'tSC || 'tSC2 || 'tSC3 || 'tSC4 continue
+			if 'spot.match || 'term.match continue
+
+			set tSC = ##class(CFAO.HUBIC.BofficeConf.functions.commons).sendConfEmail(spot.idEaiBank)
+			if 'tSC $$$LOGINFO("Erreur lors de l'envoie de l'email (ID : " _ spot.idEaiForex _ $c(13,10) _ tCS)
+
+			if spot.confFileName '= term.confFileName {
+				set tSC = ##class(CFAO.HUBIC.BofficeConf.functions.commons).sendConfEmail(term.idEaiBank)
+				if 'tSC $$$LOGINFO("Erreur lors de l'envoie de l'email (ID : " _ term.idEaiForex _ $c(13,10) _ tCS)
 			} else {
-	    		&sql(
-		    		SELECT
-		    			COUNT(*),
-		    			ID,
-		    			confFileName,
-		    			contrat 
-		    		INTO
-		    			:match,
-		    			:idEaiBank,
-		    			:confFileName,
-		    			:contrat
-		    		FROM CFAO_HUBIC_BofficeConf_tables.bank
-			    	WHERE
-				    		valueDate	= :valueDate
-				    	AND bank		= :bank
-				    	AND deviseReceived	= :deviseReceived
-				    	AND amountReceived	= :amountReceived
-				    	AND spot		= :spot
-				    	AND matchStatus = 0
-		    	)
+				set tSC = ##class(CFAO.HUBIC.BofficeConf.functions.commons).updateEmailStatus(term.idEaiBank)
 			}
 
-		//Pour les SWAP, la ligne forex doit trouver deux ligne de confirmation, Comptant et Terme
-		} elseif ((confType = "SWAP") && ((bank = "CA") || (bank = "SG"))) || ((confType = "PRORO") && (bank = "NAT"))  {
-
-			if (confType = "SWAP") && (bank = "SG"){
-				// SPOT
-	    		&sql(
-		    		SELECT
-		    			COUNT(*),
-		    			ID,
-		    			confFileName,
-		    			contrat 
-		    		INTO
-		    			:matchSpot,
-		    			:idEaiBankSpot,
-		    			:confFileNameSpot,
-		    			:contratSpot
-		    		FROM CFAO_HUBIC_BofficeConf_tables.bank
-			    	WHERE
-				    		valueDate	= :valueDate
-				    	AND bank		= :bank
-				    	AND deviseReceived	= :deviseReceived
-				    	AND amountReceived	= :amountReceived
-				    	AND spot		= :spot
-				    	AND matchStatus	= 0
-				    	AND	confType LIKE '%SWAP%'
-		    	)
-		    	
-		    	// TERME
-		    	&sql(
-			    	SELECT
-			    		COUNT(*),
-		    			ID,
-			    		confFileName,
-			    		contrat 
-			    	INTO
-			    		:matchTerm,
-			    		:idEaiBankTerm,
-			    		:confFileNameTerm,
-			    		:contratTerm
-			    	FROM CFAO_HUBIC_BofficeConf_tables.bank
-			    	WHERE 
-			    			valueDate	= :maturityDate
-				    	AND bank		= :bank
-				    	AND deviseReceived	= :deviseReceived
-				    	AND amountReceived	= :amountReceived
-				    	AND spot		= :term
-				    	AND matchStatus	= 0
-				    	AND confType LIKE '%SWAP%'
-		    	)
-
-			} else {
-				// SPOT
-	    		&sql(
-		    		SELECT
-		    			COUNT(*),
-		    			ID,
-		    			confFileName,
-		    			contrat 
-		    		INTO
-		    			:matchSpot,
-		    			:idEaiBankSpot,
-		    			:confFileNameSpot,
-		    			:contratSpot
-		    		FROM CFAO_HUBIC_BofficeConf_tables.bank
-			    	WHERE
-				    		valueDate	= :valueDate
-				    	AND bank		= :bank
-				    	AND deviseReceived	= :deviseReceived
-				    	AND amountReceived	= :amountReceived
-				    	AND spot		= :spot
-				    	AND matchStatus	= 0
-		    	)
-
-		    	// TERM
-		    	&sql(
-					SELECT
-						COUNT(*),
-		    			ID,
-						confFileName,
-						contrat 
-					INTO
-						:matchTerm,
-						:idEaiBankTerm,
-						:confFileNameTerm,
-						:contratTerm
-					FROM CFAO_HUBIC_BofficeConf_tables.bank
-					WHERE
-							valueDate	= :maturityDate
-						AND bank		= :bank
-						AND deviseReceived	= :deviseReceived
-						AND amountReceived	= :amountReceived
-						AND term		= :term
-						AND matchStatus	= 0
-		    	)
-			}
-			
-			set separator = ""
-	    	if matchSpot && matchTerm set separator = "-"
-
-			set match		= matchSpot + matchTerm
-			set confFileName= confFileNameSpot _ separator _ confFileNameTerm
-			set contrat		= contratSpot _ separator _ contratTerm
-
-	    	//y a t'il un seule PDF contenant deux confirmation
-	    	if confFileNameSpot = confFileNameTerm set onlyOnePdf = 1
-
-	    	set twoConfNeeded = 1
-
-		} elseif ((confType = "LEVEE") || (confType = "LEVEE ANN") || (confType = "PRORO")) && (bank = "BNP") {
-
-	    	&sql(
-		    	SELECT
-		    		COUNT(*),
-		    		ID,
-		    		confFileName,
-		    		contrat
-	    		INTO
-	    			:match,
-	    			:idEaiBank,
-	    			:confFileName,
-	    			:contrat
-	    		FROM CFAO_HUBIC_BofficeConf_tables.bank
-		    	WHERE
-			    		valueDate	= :valueDate
-			    	AND bank 		= :bank
-			    	AND deviseReceived	= :deviseReceived
-			    	AND amountReceived	= :amountReceived
-			    	AND spot 		= :spot
-			    	AND matchStatus = 0
-	    	)
-
+		// Term type
 		} else {
-			//on verifie si une confirmation est deja presente pour les autres types
-			&sql(
-	    		SELECT
-	    			COUNT(*),
-		    		ID,
-	    			confFileName,
-	    			contrat
-	    		INTO
-	    			:match,
-	    			:idEaiBank,
-	    			:confFileName,
-	    			:contrat
-	    		FROM CFAO_HUBIC_BofficeConf_tables.bank
-		    	WHERE
-		    			valueDate	= :maturityDate
-			    	AND bank		= :bank
-			    	AND deviseReceived	= :deviseReceived
-			    	AND amountReceived	= :amountReceived
-			    	AND spot		= :term
-			    	AND matchStatus	= 0
-	    	)
+			set data = ..match(pRequest, 1)
+
+			if data.match continue
+
+			set data.idEaiForex = idEaiForex
+			set data.idForex = idForex
+
+			set tSC = ##class(CFAO.HUBIC.BofficeConf.tables.forex).match(data, data.match)
+			if 'tSC do errorsForex.%Push(data.idForex)
+
+			set tSC = ##class(CFAO.HUBIC.BofficeConf.tables.bank).match(data)
+			if 'tSC do errorsBank.%Push(data.idEaiBank)
+
+			if 'tSC || 'tSC2 continue
+
+			set tSC = ##class(CFAO.HUBIC.BofficeConf.functions.commons).sendConfEmail(data.idEaiBank)
+			if 'tSC $$$LOGINFO("Erreur lors de l'envoie de l'email (ID : " _ data.idEaiForex _ $c(13,10) _ tCS)
 		}
 
-		if match {
-
-			set line = ##class(CFAO.HUBIC.BofficeConf.tables.forex).%OpenId(idEaiForex)
-			set line.confFileName = confFileName
-			set line.contrat = contrat
-	    	set line.matchDate = matchDate
-
-			if twoConfNeeded {
-
-		    	if matchSpot && matchTerm {
-					set line.matchStatus = 1
-		    	}
-
-		    	if ('matchSpot && matchTerm) || (matchSpot && 'matchTerm) { // If neither spot conf nor term conf have been found, validation shouldn't be set to "PREMIER"
-					set line.matchStatus = 0
-					set line.validation = "Premier"
-		    	}
-
-			} else {
-				set line.matchStatus = 1
-				set line.validation = "AUTO"
-			}
-
-			set tSC = line.%Save()
-
-			if 'tSC do errorsForex.%Push(idForex)
-
-			if tSC {
-				//Mise a jour du raprochement pour la confirmation de banques trouvée
-				if twoConfNeeded {
-					if matchSpot set idEaiBank = idEaiBankSpot
-					if matchTerm set idEaiBank = idEaiBankTerm
-					set line =  ##class(CFAO.HUBIC.BofficeConf.Table.ConfirmationBanques).%OpenId(idEaiBank)
-				} else {
-					set line =  ##class(CFAO.HUBIC.BofficeConf.Table.ConfirmationBanques).%OpenId(idEaiBank)
-					set line.confType = confType
-				}
-
-				set line.matchStatus = 1
-				set line.idForex = idForex
-				set line.idEaiForex = idEaiForex
-				set tSC = line.%Save()
-
-				if 'tSC do errorsBank.%Push(idForex)
-			}
-
-			// Envoi du mail a la banque **************************************************************************************		
-			if tSC {
-				if twoConfNeeded set idEaiBank = idEaiBankSpot
-				set tSC = ##class(CFAO.HUBIC.BofficeConf.functions.commons).sendConfEmail(idEaiBank)
-				if 'tSC $$$LOGINFO(tSC_" | ID : idEaiForex")
-			}
-			// ****************************************************************************************************************
-		} // if match
-		
 		set key = pRequest.forexRecords.Next(key)
-
-	} // Fin de while(key '= "")
+	}
 
 	set pResponse = ##class(CFAO.HUBIC.BofficeConf.messages.checkForexMsg).%New()
 
-	if errorsForex.%Size() {
+	if errorsForex.%Size() || errorsBank.%Size() {
 		set pResponse.forex = errorsForex
 		set pResponse.bank = errorsBank
 		set pResponse.status = 1
@@ -338,11 +138,61 @@ Method EnregEtRapproche(pRequest As CFAO.HUBIC.BofficeConf.tables.forexBatch, Ou
 	Quit $$$OK
 }
 
+ClassMethod match(pRequest As CFAO.HUBIC.BofficeConf.tables.forexBatch, type = 0) As %Library.DynamicArray
+{
+	set bank			= pRequest.forexRecords.GetAt(key).bank
+	set tradeDate		= pRequest.forexRecords.GetAt(key).tradeDate
+	set deviseReceived	= pRequest.forexRecords.GetAt(key).deviseReceived
+	set devisePaid		= pRequest.forexRecords.GetAt(key).devisePaid
+	set amountReceived	= pRequest.forexRecords.GetAt(key).amountReceived
+	set amountPaid		= pRequest.forexRecords.GetAt(key).amountPaid
+	set maturityDate	= pRequest.forexRecords.GetAt(key).maturityDate
+	set valueDate		= pRequest.forexRecords.GetAt(key).valueDate
+	set term			= pRequest.forexRecords.GetAt(key).term
+	set spot			= pRequest.forexRecords.GetAt(key).spot
+
+	set request =
+		"SELECT"
+			_ " COUNT(*) AS ""match"","
+			_ " ID AS ""idEaiForex"","
+			_ " confFileName,"
+			_ " contrat"
+		_ " FROM CFAO_HUBIC_BofficeConf_tables.forex"
+		_ " WHERE"
+			_ " matchStatus = 0"
+			_ " AND bank			= '" _ bank				_ "'"
+			_ " AND tradeDate 		= '" _ tradeDate 		_ "'"
+			_ " AND deviseReceived 	= '" _ deviseReceived	_ "'"
+			_ " AND devisePaid		= '" _ devisePaid		_ "'"
+			_ " AND amountReceived	= '" _ amountReceived	_ "'"
+			_ " AND amountPaid		= '" _ amountPaid		_ "'"
+
+	if type = 0 {
+		set request = request
+			_ " AND valueDate 		= '" _ valueDate 		_ "'"
+			_ " AND spot 			= '" _ spot 			_ "'"
+	}
+
+	if type = 1 {
+		set request = request
+			_ " AND maturityDate 	= '" _ maturityDate 	_ "'"
+			_ " AND term 		 	= '" _ term				_ "'"
+	}
+
+	set data = ##class(CFAO.HUBIC.Outils).queryJSON(request)
+
+	if data.%IsDefined(0) {
+		return data.%Get(0)
+	} else {
+		return {}
+	}
+}
+
 XData MessageMap
 {
 <MapItems>
 	<MapItem MessageType="CFAO.HUBIC.BofficeConf.tables.forexBatch">
-		<Method>EnregEtRapproche</Method>
+		<Method>check</Method>
 	</MapItem>
 </MapItems>
 }

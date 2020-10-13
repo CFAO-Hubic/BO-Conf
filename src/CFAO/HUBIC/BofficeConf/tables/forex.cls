@@ -95,30 +95,30 @@ Property contrat As %String [ SqlColumnNumber = 31 ];
 
 ClassMethod match(data As %Library.DynamicArray, match As %Integer) As %Status
 {
-	if data.idEaiForex = "" quit 0
+	if data.idEaiForex = "" quit "The Id in the data provided is null"
+	if 'match quit 1
 
-	if match {
-		set line = ..%OpenId(data.idEaiForex)
-		set line.matchStatus = 1
-		set line.validation = "AUTO"
-		set line.matchDate = $ZDATETIME($h, 3)
+	set line = ..%OpenId(data.idEaiForex)
+	set line.matchStatus = 1
+	set line.matchDate = $ZDATETIME($h, 3)
+	set line.validation = "AUTO"
+	if match = 9999 set line.validation = "Premier" // Cas particulier pour les PRORO SPOT et TERME
 
+	if line.confFileName '= data.confFileName {
 		set separator = ""
 		if line.confFileName set separator = " | "
 		set line.confFileName = line.confFileName _ separator _ $Replace($Piece(data.confFileName,".",1) _ ".pdf"," ","_")
+	}
 
+	if line.contrat '= data.contrat {
 		set separator = ""
 		if line.contrat set separator = " | "
 		set line.contrat = line.contrat _ separator _ data.contrat
 	}
-
-	if match = 9999 set line.validation = "Premier" // Cas particulier pour les PRORO SPOT et TERME
-
+	
 	set tSC = line.%Save()
 
-	if 'tSC quit 0
-	
-	quit 1
+	quit tSC
 }
 
 Storage Default

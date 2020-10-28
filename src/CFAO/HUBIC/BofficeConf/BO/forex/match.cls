@@ -32,24 +32,23 @@ Method check(pRequest As CFAO.HUBIC.BofficeConf.tables.forexBatch, Output pRespo
 
 	set errorsForex = []
 	set errorsBank = []
-	set key	= pRequest.forexRecords.Next()
+	set key	= 0
 
 	while(key '= "") {
-		set key				= pRequest.forexRecords.Next()
+		set key				= pRequest.forexRecords.Next(key)
+		if 'key continue
+
 		set idEaiForex		= pRequest.forexRecords.GetAt(key).%Id()
 		set idForex			= pRequest.forexRecords.GetAt(key).idForex
 		set bank			= pRequest.forexRecords.GetAt(key).bank
 		set confType		= pRequest.forexRecords.GetAt(key).confType
 		
-		$$$LOGINFO(bank _ " | " _ confType _ " | " _ key)
 
 		// Spot type
 		if (((confType = "LEVEE") || (confType = "LEVEE ANN")) && ((bank = "SG") || (bank = "CA")))
 		|| (((confType = "MEP SPOT ANN") || (confType = "MEP SPOT")) && ((bank = "CA") || (bank = "SG"))) 
 		|| (((confType = "MEP SPOT ANN") || (confType = "MEP SPOT") || (confType = "LEVEE")
 		|| (confType = "LEVEE ANN") || (confType = "PRORO")) && (bank = "BNP")) {
-
-			$$$LOGINFO("spot")
 
 			set data = ..match(pRequest, key, 0)
 
@@ -71,7 +70,7 @@ Method check(pRequest As CFAO.HUBIC.BofficeConf.tables.forexBatch, Output pRespo
 
 		// SWAP type (the line must find 2 conf : spot and term)
 		} elseif ((confType = "SWAP") && ((bank = "CA") || (bank = "SG"))) {
-			$$$LOGINFO("swap")
+
 			set spot = ..match(pRequest, key, 0)
 			set spot.idEaiForex = idEaiForex
 			set spot.idForex = idForex
@@ -110,19 +109,20 @@ Method check(pRequest As CFAO.HUBIC.BofficeConf.tables.forexBatch, Output pRespo
 
 		// Term type
 		} else {
-			$$$LOGINFO("term")
+
 			set data = ..match(pRequest, key, 1)
 
 			if 'data.match continue
 
 			set data.idEaiForex = idEaiForex
 			set data.idForex = idForex
+			$$$LOGINFO(data.%ToJSON())
 
 			set tSC = ##class(CFAO.HUBIC.BofficeConf.tables.forex).match(data, data.match)
 			if 'tSC do errorsForex.%Push(data.idForex)
 
-			set tSC = ##class(CFAO.HUBIC.BofficeConf.tables.bank).match(data)
-			if 'tSC do errorsBank.%Push(data.idEaiBank)
+			set tSC2 = ##class(CFAO.HUBIC.BofficeConf.tables.bank).match(data)
+			if 'tSC2 do errorsBank.%Push(data.idEaiBank)
 
 			if 'tSC || 'tSC2 continue
 
@@ -136,9 +136,9 @@ Method check(pRequest As CFAO.HUBIC.BofficeConf.tables.forexBatch, Output pRespo
 	if errorsForex.%Size() || errorsBank.%Size() {
 		set pResponse.forex = errorsForex
 		set pResponse.bank = errorsBank
-		set pResponse.status = 1
-	} else {
 		set pResponse.status = 0
+	} else {
+		set pResponse.status = 1
 	}
 
 	Quit $$$OK
@@ -165,7 +165,7 @@ ClassMethod match(pRequest As CFAO.HUBIC.BofficeConf.tables.forexBatch, key, typ
 			_ " contrat"
 		_ " FROM CFAO_HUBIC_BofficeConf_tables.bank"
 		_ " WHERE"
-			_ " matchStatus = 0"
+			_ " matchStatus 		= 0"
 			_ " AND bank			= '" _ bank				_ "'"
 			_ " AND tradeDate 		= '" _ tradeDate 		_ "'"
 			_ " AND deviseReceived 	= '" _ deviseReceived	_ "'"
@@ -184,8 +184,6 @@ ClassMethod match(pRequest As CFAO.HUBIC.BofficeConf.tables.forexBatch, key, typ
 			_ " AND maturityDate 	= '" _ maturityDate 	_ "'"
 			_ " AND term 		 	= '" _ term				_ "'"
 	}
-
-	$$$LOGINFO(request)
 
 	set data = ##class(CFAO.HUBIC.Outils).queryJSON(request)
 

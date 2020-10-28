@@ -101,7 +101,7 @@ ClassMethod match(data As %Library.DynamicArray) As %Status
 	if data.idEaiBank = "" quit "The Id in the data provided is null"
 	if 'data.match quit 1
 
-	set line = ..%Open(data.idEaiBank)
+	set line = ..%OpenId(data.idEaiBank)
 
 	set line.matchStatus = 1
 	set line.idForex = data.idForex

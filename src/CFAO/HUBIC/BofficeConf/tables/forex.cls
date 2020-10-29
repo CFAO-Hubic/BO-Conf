@@ -1,97 +1,239 @@
 Class CFAO.HUBIC.BofficeConf.tables.forex Extends (%Persistent, %XML.Adaptor) [ Inheritance = right ]
 {
 
-Property idForex As %String [ SqlColumnNumber = 2 ];
+Property idBatch As %String;
+
+Property idForex As %String;
 
 // IDforex
 
-Property forexFileName As %String(MAXLEN = 2000) [ SqlColumnNumber = 3 ];
+Property forexFileName As %String(MAXLEN = 2000);
 
-Property confFileName As %String(MAXLEN = 300) [ SqlColumnNumber = 4 ];
+Property confFileName As %String(MAXLEN = 300);
 
-Property utiCci As %String(MAXLEN = 500) [ SqlColumnNumber = 5 ];
+Property utiCci As %String(MAXLEN = 500);
 
 // UTICCI
 
-Property valueDate As %String(MAXLEN = 10) [ SqlColumnNumber = 6 ];
+Property valueDate As %String(MAXLEN = 10);
 
 // VALUEDATE
 
-Property tradeDate As %String(MAXLEN = 10) [ SqlColumnNumber = 7 ];
+Property tradeDate As %String(MAXLEN = 10);
 
 // TRADEDATE
 
-Property maturityDate As %String(MAXLEN = 10) [ SqlColumnNumber = 8 ];
+Property maturityDate As %String(MAXLEN = 10);
 
 // MATURITYDATE
 
-Property term As %String [ SqlColumnNumber = 9 ];
+Property term As %String;
 
 // CLIENTRATE
 
-Property spot As %String [ SqlColumnNumber = 10 ];
+Property spot As %String;
 
 // SPOTRATE
 
-Property amountReceived As %String [ SqlColumnNumber = 11 ];
+Property amountReceived As %String;
 
 // AMOUNT1
 
-Property amountReceivedRemaining As %String [ SqlColumnNumber = 12 ];
+Property amountReceivedRemaining As %String;
 
 // REMAININGAMOUNT1
 
-Property deviseReceived As %String(MAXLEN = 5) [ SqlColumnNumber = 13 ];
+Property deviseReceived As %String(MAXLEN = 5);
 
 // CURRENCY1SHORTNAME
 
-Property amountPaid As %String [ SqlColumnNumber = 14 ];
+Property amountPaid As %String;
 
 // AMOUNT2
 
-Property devisePaid As %String [ SqlColumnNumber = 15 ];
+Property devisePaid As %String;
 
-Property sens As %String(MAXLEN = 1) [ SqlColumnNumber = 16 ];
+// CURRENCY2SHORTNAME
 
-Property bank As %String(MAXLEN = 5) [ SqlColumnNumber = 17 ];
+Property sens As %String(MAXLEN = 1);
+
+Property bank As %String(MAXLEN = 5);
 
 // CPTYSHORTNAME
 
-Property tradeType As %String(MAXLEN = 5) [ SqlColumnNumber = 18 ];
+Property tradeType As %String(MAXLEN = 5);
 
 // TRADETYPESHORTNAME
 
-Property matchStatus As %String(MAXLEN = 10) [ SqlColumnNumber = 19 ];
+Property matchStatus As %String(MAXLEN = 10);
 
-Property matchDate As %String [ SqlColumnNumber = 20 ];
+Property matchDate As %String;
 
-Property confType As %String(MAXLEN = 50) [ SqlColumnNumber = 21 ];
+Property confType As %String(MAXLEN = 50);
 
-Property archived As %Integer(DISPLAYLIST = ",Non,Oui", VALUELIST = ",0,1") [ SqlColumnNumber = 22 ];
+Property archived As %Integer(DISPLAYLIST = ",Non,Oui", VALUELIST = ",0,1");
 
-Property archiveDate As %String [ SqlColumnNumber = 23 ];
+Property archiveDate As %String;
 
-Property forexStatus As %String [ SqlColumnNumber = 24 ];
+Property forexStatus As %String;
 
 // APPLICATIVESTATUSNAME
 
-Property reference As %String [ SqlColumnNumber = 25 ];
+Property reference As %String;
 
 // REFERENCE
 
-Property parentTradeCce As %String [ SqlColumnNumber = 26 ];
+Property parentTradeCce As %String;
 
 // PARENTTRADECCE
 
-Property UTIbanques As %String(MAXLEN = 100) [ SqlColumnNumber = 27 ];
+Property UTIbanques As %String(MAXLEN = 100);
 
-Property validation As %String(MAXLEN = 20) [ SqlColumnNumber = 28 ];
+Property validation As %String(MAXLEN = 20);
 
-Property emailStatus As %Integer(DISPLAYLIST = ",Envoyé, Erreur lors de l'envoi, Pas de destinataire", VALUELIST = ",0,1,2") [ SqlColumnNumber = 29 ];
+Property emailStatus As %Integer(DISPLAYLIST = ",Envoyé, Erreur lors de l'envoi, Pas de destinataire", VALUELIST = ",0,1,2");
 
-Property emailDate As %String [ SqlColumnNumber = 30 ];
+Property emailDate As %String;
 
-Property contrat As %String [ SqlColumnNumber = 31 ];
+Property contrat As %String;
+
+ClassMethod save(data As %Library.DynamicArray, match As %Integer) As %Status
+{
+	set newLine 						= ..%New()
+
+	set newLine.forexFileName			= data.forexFileName
+	set newLine.idBatch					= data.idBatch
+	set newLine.forexStatus				= data.forexStatus
+	set newLine.idForex					= data.idForex
+	set newLine.bank					= data.bank
+	set newLine.tradeType				= data.tradeType
+	set newLine.valueDate				= data.valueDate
+	set newLine.maturityDate			= data.maturityDate
+	set newLine.amountReceivedRemaining	= data.amount1Remaining
+	set newLine.term					= data.term
+	set newLine.spot					= data.spot
+	set newLine.reference				= data.reference
+	set newLine.utiCci					= data.utiCci
+	set newLine.parentTradeCce			= data.parentTradeCce
+	set newLine.matchStatus				= 0
+	set newLine.archived				= 0
+	set amount1 = $replace($p($replace(data.amount1, " ", ""), ".", 1), ",", "")
+	set amount2 = $replace($p($replace(data.amount2, " ", ""), ".", 1), ",", "")
+
+	if newLine.tradeType = "EVAT" {
+		set newLine.confType				= "MEP TERME"
+		set newLine.amountReceived			= amount2
+		set newLine.deviseReceived			= data.devise2
+		set newLine.amountPaid				= amount1
+		set newLine.devisePaid				= data.devise1
+	}
+
+	if newLine.tradeType = "EAAT" {
+		set newLine.confType				= "MEP TERME"
+		set newLine.amountReceived			= amount1
+		set newLine.deviseReceived			= data.devise1
+		set newLine.amountPaid				= amount2
+		set newLine.devisePaid				= data.devise2
+	}
+
+	if newLine.tradeType = "EVSP" {
+		set newLine.confType				= "MEP SPOT"
+		set newLine.amountReceived			= amount2
+		set newLine.deviseReceived			= data.devise2
+		set newLine.amountPaid				= amount1
+		set newLine.devisePaid				= data.devise1
+	}
+
+	if newLine.tradeType = "EVSPA" {
+		set newLine.confType				= "MEP SPOT ANN"
+		set newLine.amountReceived			= amount2
+		set newLine.deviseReceived			= data.devise2
+		set newLine.amountPaid				= amount1
+		set newLine.devisePaid				= data.devise1
+	}
+
+	if newLine.tradeType = "EASP" {
+		set newLine.confType				= "MEP SPOT"
+		set newLine.amountReceived			= amount1
+		set newLine.deviseReceived			= data.devise1
+		set newLine.amountPaid				= amount2
+		set newLine.devisePaid				= data.devise2
+	}
+
+	if newLine.tradeType = "EASPA" {
+		set newLine.confType				= "MEP SPOT ANN"
+		set newLine.amountReceived			= amount1
+		set newLine.deviseReceived			= data.devise1
+		set newLine.amountPaid				= amount2
+		set newLine.devisePaid				= data.devise2
+	}
+
+	if newLine.tradeType = "ERVT" {
+		set newLine.confType				= "PRORO"
+		set newLine.amountReceived			= amount2
+		set newLine.deviseReceived			= data.devise2
+		set newLine.amountPaid				= amount1
+		set newLine.devisePaid				= data.devise1
+	}
+
+	if newLine.tradeType = "ERAT" {
+		set newLine.confType				= "PRORO"
+		set newLine.amountReceived			= amount1
+		set newLine.deviseReceived			= data.devise1
+		set newLine.amountPaid				= amount2
+		set newLine.devisePaid				= data.devise2
+	}
+
+	if newLine.tradeType = "ELAT" {
+		set newLine.confType				= "LEVEE"
+		set newLine.amountReceived			= amount1
+		set newLine.deviseReceived			= data.devise1
+		set newLine.amountPaid				= amount2
+		set newLine.devisePaid				= data.devise2
+	}
+
+	if newLine.tradeType = "ELATA" {
+		set newLine.confType				= "LEVEE ANN"
+		set newLine.amountReceived			= amount1
+		set newLine.deviseReceived			= data.devise1
+		set newLine.amountPaid				= amount2
+		set newLine.devisePaid				= data.devise2
+	}
+
+	if newLine.tradeType = "ELVT" {
+		set newLine.confType				= "LEVEE"
+		set newLine.amountReceived			= amount2
+		set newLine.deviseReceived			= data.devise2
+		set newLine.amountPaid				= amount1
+		set newLine.devisePaid				= data.devise1
+	}
+
+	if newLine.tradeType = "ELVTA" {
+		set newLine.confType				= "LEVEE ANN"
+		set newLine.amountReceived			= amount2
+		set newLine.deviseReceived			= data.devise2
+		set newLine.amountPaid				= amount1
+		set newLine.devisePaid				= data.devise1
+	}
+
+	if newLine.tradeType = "SWAA" {
+		set newLine.confType				= "SWAP"
+		set newLine.amountReceived			= amount1
+		set newLine.deviseReceived			= data.devise1
+		set newLine.amountPaid				= amount2
+		set newLine.devisePaid				= data.devise2
+	}
+
+	if newLine.tradeType = "SWAV" {
+		set newLine.confType				= "SWAP"
+		set newLine.amountReceived			= amount2
+		set newLine.deviseReceived			= data.devise2
+		set newLine.amountPaid				= amount1
+		set newLine.devisePaid				= data.devise1
+	}
+
+	quit newLine.%Save()
+}
 
 ClassMethod match(data As %Library.DynamicArray, match As %Integer) As %Status
 {
@@ -128,93 +270,96 @@ Storage Default
 <Value>%%CLASSNAME</Value>
 </Value>
 <Value name="2">
-<Value>idForex</Value>
+<Value>idBatch</Value>
 </Value>
 <Value name="3">
-<Value>forexFileName</Value>
+<Value>idForex</Value>
 </Value>
 <Value name="4">
-<Value>confFileName</Value>
+<Value>forexFileName</Value>
 </Value>
 <Value name="5">
-<Value>utiCci</Value>
+<Value>confFileName</Value>
 </Value>
 <Value name="6">
-<Value>valueDate</Value>
+<Value>utiCci</Value>
 </Value>
 <Value name="7">
-<Value>tradeDate</Value>
+<Value>valueDate</Value>
 </Value>
 <Value name="8">
-<Value>maturityDate</Value>
+<Value>tradeDate</Value>
 </Value>
 <Value name="9">
-<Value>term</Value>
+<Value>maturityDate</Value>
 </Value>
 <Value name="10">
-<Value>spot</Value>
+<Value>term</Value>
 </Value>
 <Value name="11">
-<Value>amountReceived</Value>
+<Value>spot</Value>
 </Value>
 <Value name="12">
-<Value>amountReceivedRemaining</Value>
+<Value>amountReceived</Value>
 </Value>
 <Value name="13">
-<Value>deviseReceived</Value>
+<Value>amountReceivedRemaining</Value>
 </Value>
 <Value name="14">
-<Value>amountPaid</Value>
+<Value>deviseReceived</Value>
 </Value>
 <Value name="15">
-<Value>devisePaid</Value>
+<Value>amountPaid</Value>
 </Value>
 <Value name="16">
-<Value>sens</Value>
+<Value>devisePaid</Value>
 </Value>
 <Value name="17">
-<Value>bank</Value>
+<Value>sens</Value>
 </Value>
 <Value name="18">
-<Value>tradeType</Value>
+<Value>bank</Value>
 </Value>
 <Value name="19">
-<Value>matchStatus</Value>
+<Value>tradeType</Value>
 </Value>
 <Value name="20">
-<Value>matchDate</Value>
+<Value>matchStatus</Value>
 </Value>
 <Value name="21">
-<Value>confType</Value>
+<Value>matchDate</Value>
 </Value>
 <Value name="22">
-<Value>archived</Value>
+<Value>confType</Value>
 </Value>
 <Value name="23">
-<Value>archiveDate</Value>
+<Value>archived</Value>
 </Value>
 <Value name="24">
-<Value>forexStatus</Value>
+<Value>archiveDate</Value>
 </Value>
 <Value name="25">
-<Value>reference</Value>
+<Value>forexStatus</Value>
 </Value>
 <Value name="26">
-<Value>parentTradeCce</Value>
+<Value>reference</Value>
 </Value>
 <Value name="27">
-<Value>UTIbanques</Value>
+<Value>parentTradeCce</Value>
 </Value>
 <Value name="28">
-<Value>validation</Value>
+<Value>UTIbanques</Value>
 </Value>
 <Value name="29">
-<Value>emailStatus</Value>
+<Value>validation</Value>
 </Value>
 <Value name="30">
-<Value>emailDate</Value>
+<Value>emailStatus</Value>
 </Value>
 <Value name="31">
+<Value>emailDate</Value>
+</Value>
+<Value name="32">
 <Value>contrat</Value>
 </Value>
 </Data>

@@ -11,17 +11,7 @@ Property sender As %String;
 
 Parameter SETTINGS = "pathPDF, SMTP, sender";
 
-/// Opérations : Enreg Back Order Confirmation Journal Forex
-/// 
-/// cette classe enregistre les lignes des journaux forex en attente de confirmation de banques
-/// elle recherche aussi si une confirmation de banques existe deja 
-/// si une confirmation de banques est trouver, la ligne est enregistrer avec un statut rapprocher
-/// sinon le ligne est enregistrer avec un statut non rapprocher
-/// 
-/// /Method EnregEtRapprochePJ(pRequest As %Library.FileCharacterStream, Output pResponse As %Library.Persistent) As %Status
-/// This is the default message handler.  All request types not declared in the message map are delivered here
-/// Method EnregEtRapprochePJ(pRequest As CFAO.HUBIC.EMIRtools.recordMap.JournalForex.Batch, Output pResponse As Ens.StringResponse) As %Status
-Method check(pRequest As CFAO.HUBIC.BofficeConf.tables.forexBatch, Output pResponse As CFAO.HUBIC.BofficeConf.messages.checkForexMsg) As %Status
+Method check(pRequest As Ens.Request, Output pResponse As CFAO.HUBIC.BofficeConf.messages.checkForexMsg) As %Status
 {
 	$$$LOGINFO("-----------------------------------")
 
@@ -32,17 +22,21 @@ Method check(pRequest As CFAO.HUBIC.BofficeConf.tables.forexBatch, Output pRespo
 
 	set errorsForex = []
 	set errorsBank = []
-	set key	= 0
 
-	while(key '= "") {
-		set key				= pRequest.forexRecords.Next(key)
-		if 'key continue
+	set request =
+		  "SELECT * "
+		_ "FROM CFAO_HUBIC_BofficeConf_tables"
+		_ "WHERE idBatch = " _ pRequest
 
-		set idEaiForex		= pRequest.forexRecords.GetAt(key).%Id()
-		set idForex			= pRequest.forexRecords.GetAt(key).idForex
-		set bank			= pRequest.forexRecords.GetAt(key).bank
-		set confType		= pRequest.forexRecords.GetAt(key).confType
-		
+	set data = ##class(CFAO.HUBIC.Outils).queryJSON(request)
+	set iter = data.%GetIterator()
+
+	while iter.%GetNext(.key , .row) {
+
+		set idEaiForex		= row.ID
+		set idForex			= row.idForex
+		set bank			= row.bank
+		set confType		= row.confType
 
 		// Spot type
 		if (((confType = "LEVEE") || (confType = "LEVEE ANN")) && ((bank = "SG") || (bank = "CA")))
@@ -50,23 +44,23 @@ Method check(pRequest As CFAO.HUBIC.BofficeConf.tables.forexBatch, Output pRespo
 		|| (((confType = "MEP SPOT ANN") || (confType = "MEP SPOT") || (confType = "LEVEE")
 		|| (confType = "LEVEE ANN") || (confType = "PRORO")) && (bank = "BNP")) {
 
-			set data = ..match(pRequest, key, 0)
+			set matchedRow = ..match(row, 0)
 
-			if 'data.match continue
+			if 'matchedRow.match continue
 
-			set data.idEaiForex = idEaiForex
-			set data.idForex = idForex
+			set matchedRow.idEaiForex = idEaiForex
+			set matchedRow.idForex = idForex
 
-			set tSC = ##class(CFAO.HUBIC.BofficeConf.tables.forex).match(data, data.match)
-			if 'tSC do errorsForex.%Push(data.idForex)
+			set tSC = ##class(CFAO.HUBIC.BofficeConf.tables.forex).match(matchedRow, matchedRow.match)
+			if 'tSC do errorsForex.%Push(matchedRow.idForex)
 
-			set tSC2 = ##class(CFAO.HUBIC.BofficeConf.tables.bank).match(data)
-			if 'tSC2 do errorsBank.%Push(data.idEaiBank)
+			set tSC2 = ##class(CFAO.HUBIC.BofficeConf.tables.bank).match(matchedRow)
+			if 'tSC2 do errorsBank.%Push(matchedRow.idEaiBank)
 
 			if 'tSC || 'tSC2 continue
 
-			set tSC = ##class(CFAO.HUBIC.BofficeConf.functions.commons).sendConfEmail(data.idEaiBank)
-			if 'tSC $$$LOGINFO("Erreur lors de l'envoie de l'email (ID : " _ data.idEaiForex _ $c(13,10) _ tCS)
+			set tSC = ##class(CFAO.HUBIC.BofficeConf.functions.commons).sendConfEmail(matchedRow.idEaiBank)
+			if 'tSC $$$LOGINFO("Erreur lors de l'envoie de l'email (ID : " _ matchedRow.idEaiForex _ $c(13,10) _ tCS)
 
 		// SWAP type (the line must find 2 conf : spot and term)
 		} elseif ((confType = "SWAP") && ((bank = "CA") || (bank = "SG"))) {
@@ -83,10 +77,10 @@ Method check(pRequest As CFAO.HUBIC.BofficeConf.tables.forexBatch, Output pRespo
 			if ('spot.match && term.match) set term.match = 9999
 
 			set tSC = ##class(CFAO.HUBIC.BofficeConf.tables.forex).match(spot, spot.match)
-			if 'tSC do errorsForex.%Push(data.idForex _ "(spot)")
+			if 'tSC do errorsForex.%Push(matchedRow.idForex _ "(spot)")
 
 			set tSC2 = ##class(CFAO.HUBIC.BofficeConf.tables.forex).match(term, term.match)
-			if 'tSC2 do errorsForex.%Push(data.idForex _ "(term)")
+			if 'tSC2 do errorsForex.%Push(matchedRow.idForex _ "(term)")
 
 			set tSC3 = ##class(CFAO.HUBIC.BofficeConf.tables.bank).match(spot)
 			if 'tSC3 do errorsBank.%Push(spot.idEaiBank _ "(spot)")
@@ -110,24 +104,24 @@ Method check(pRequest As CFAO.HUBIC.BofficeConf.tables.forexBatch, Output pRespo
 		// Term type
 		} else {
 
-			set data = ..match(pRequest, key, 1)
+			set matchedRow = ..match(pRequest, key, 1)
 
-			if 'data.match continue
+			if 'matchedRow.match continue
 
-			set data.idEaiForex = idEaiForex
-			set data.idForex = idForex
-			$$$LOGINFO(data.%ToJSON())
+			set matchedRow.idEaiForex = idEaiForex
+			set matchedRow.idForex = idForex
+			$$$LOGINFO(matchedRow.%ToJSON())
 
-			set tSC = ##class(CFAO.HUBIC.BofficeConf.tables.forex).match(data, data.match)
-			if 'tSC do errorsForex.%Push(data.idForex)
+			set tSC = ##class(CFAO.HUBIC.BofficeConf.tables.forex).match(matchedRow, matchedRow.match)
+			if 'tSC do errorsForex.%Push(matchedRow.idForex)
 
-			set tSC2 = ##class(CFAO.HUBIC.BofficeConf.tables.bank).match(data)
-			if 'tSC2 do errorsBank.%Push(data.idEaiBank)
+			set tSC2 = ##class(CFAO.HUBIC.BofficeConf.tables.bank).match(matchedRow)
+			if 'tSC2 do errorsBank.%Push(matchedRow.idEaiBank)
 
 			if 'tSC || 'tSC2 continue
 
-			set tSC = ##class(CFAO.HUBIC.BofficeConf.functions.commons).sendConfEmail(data.idEaiBank)
-			if 'tSC $$$LOGINFO("Erreur lors de l'envoie de l'email (ID : " _ data.idEaiForex _ $c(13,10) _ tCS)
+			set tSC = ##class(CFAO.HUBIC.BofficeConf.functions.commons).sendConfEmail(matchedRow.idEaiBank)
+			if 'tSC $$$LOGINFO("Erreur lors de l'envoie de l'email (ID : " _ matchedRow.idEaiForex _ $c(13,10) _ tCS)
 		}
 	}
 
@@ -144,18 +138,18 @@ Method check(pRequest As CFAO.HUBIC.BofficeConf.tables.forexBatch, Output pRespo
 	Quit $$$OK
 }
 
-ClassMethod match(pRequest As CFAO.HUBIC.BofficeConf.tables.forexBatch, key, type = 0) As %Library.DynamicArray
+ClassMethod match(row, type = 0) As %Library.DynamicArray
 {
-	set bank			= pRequest.forexRecords.GetAt(key).bank
-	set tradeDate		= pRequest.forexRecords.GetAt(key).tradeDate
-	set deviseReceived	= pRequest.forexRecords.GetAt(key).deviseReceived
-	set devisePaid		= pRequest.forexRecords.GetAt(key).devisePaid
-	set amountReceived	= pRequest.forexRecords.GetAt(key).amountReceived
-	set amountPaid		= pRequest.forexRecords.GetAt(key).amountPaid
-	set maturityDate	= pRequest.forexRecords.GetAt(key).maturityDate
-	set valueDate		= pRequest.forexRecords.GetAt(key).valueDate
-	set term			= pRequest.forexRecords.GetAt(key).term
-	set spot			= pRequest.forexRecords.GetAt(key).spot
+	set bank			= row.bank
+	set tradeDate		= row.tradeDate
+	set deviseReceived	= row.deviseReceived
+	set devisePaid		= row.devisePaid
+	set amountReceived	= row.amountReceived
+	set amountPaid		= row.amountPaid
+	set maturityDate	= row.maturityDate
+	set valueDate		= row.valueDate
+	set term			= row.term
+	set spot			= row.spot
 
 	set request =
 		"SELECT"
@@ -197,7 +191,7 @@ ClassMethod match(pRequest As CFAO.HUBIC.BofficeConf.tables.forexBatch, key, typ
 XData MessageMap
 {
 <MapItems>
-	<MapItem MessageType="CFAO.HUBIC.BofficeConf.tables.forexBatch">
+	<MapItem MessageType="Ens.Request">
 		<Method>check</Method>
 	</MapItem>
 </MapItems>

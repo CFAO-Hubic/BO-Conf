@@ -51,41 +51,41 @@ Property emailDate As %String [ SqlColumnNumber = 25 ];
 
 ClassMethod save(data As %Library.DynamicArray, match As %Integer) As %Status
 {
-	set newLine 			= ..%New()
+	set newLine 				= ..%New()
 	set newLine.confFileName	= $Piece(data.confFileName,".",1)
-	set newLine.contrat		= data.contrat
-	set newLine.tradeDate	= data.tradeDate
-	set newLine.valueDate	= data.valueDate
-	set newLine.maturityDate= data.maturityDate
-	set newLine.spot		= data.spot
-	set newLine.term		= data.term
+	set newLine.contrat			= data.contrat
+	set newLine.tradeDate		= data.tradeDate
+	set newLine.valueDate		= data.valueDate
+	set newLine.maturityDate	= data.maturityDate
+	set newLine.spot			= data.spot
+	set newLine.term			= data.term
 	set newLine.amountReceived	= data.amountReceived
-	set newLine.amountPaid	= data.amountPaid
+	set newLine.amountPaid		= data.amountPaid
 	set newLine.deviseReceived	= data.deviseReceived
-	set newLine.devisePaid	= data.devisePaid
-	set newLine.bank		= data.bank
-	set newLine.confType	= data.confType
-	set newLine.matchDate	= data.matchDate
-	set newLine.emailStatus	= ""
-	set newLine.archived	= 0
+	set newLine.devisePaid		= data.devisePaid
+	set newLine.bank			= data.bank
+	set newLine.confType		= data.confType
+	set newLine.matchDate		= data.matchDate
+	set newLine.emailStatus		= ""
+	set newLine.archived		= 0
 	
 	If match = 1 {
-		set newLine.idForex = data.idForex
-		set newLine.idEaiForex = data.idEaiForex
-		set newLine.matchStatus = 1
-		set newLine.errorStatus = 0
+		set newLine.idForex 	 = data.idForex
+		set newLine.idEaiForex 	 = data.idEaiForex
+		set newLine.matchStatus  = 1
+		set newLine.errorStatus  = 0
 		set newLine.errorMessage = 0
 	}
 
 	If match = 0 {
-		set newLine.matchStatus = 0
-		set newLine.errorStatus = 0
+		set newLine.matchStatus  = 0
+		set newLine.errorStatus  = 0
 		set newLine.errorMessage = 0
 	}
 
 	If match > 1 {
-		set newLine.matchStatus = 0
-		set newLine.errorStatus = 2
+		set newLine.matchStatus  = 0
+		set newLine.errorStatus  = 2
 		set newLine.errorMessage = "Plusieurs demandes trouvées"
 	}
 	

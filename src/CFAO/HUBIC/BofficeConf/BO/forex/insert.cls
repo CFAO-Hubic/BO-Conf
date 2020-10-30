@@ -3,10 +3,11 @@ Class CFAO.HUBIC.BofficeConf.BO.forex.insert Extends Ens.BusinessOperation
 
 Parameter INVOCATION = "Queue";
 
-Method insert(pRequest As CFAO.HUBIC.BofficeConf.recordMap.JournalForex.Batch, Output pResponse As %String) As %Status
+Method insert(pRequest As CFAO.HUBIC.BofficeConf.recordMap.JournalForex.Batch, Output pResponse As Ens.StringResponse) As %Status
 {
 	set key = pRequest.Records.Next()
-	set (batchId, pResponse) = ..setBatchId()
+	set pResponse = ##class(Ens.StringRequest).%New()
+	set (batchId, pResponse.StringValue) = ..setBatchId()
 
 	while (key '= "") {
 		set data = {}
@@ -38,7 +39,7 @@ Method insert(pRequest As CFAO.HUBIC.BofficeConf.recordMap.JournalForex.Batch, O
 		set key = pRequest.Records.Next(key)
 	}
 
-	quit $$$OK
+	quit pResponse
 }
 
 ClassMethod setBatchId() As %Status

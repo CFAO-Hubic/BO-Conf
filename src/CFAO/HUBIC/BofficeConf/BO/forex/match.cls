@@ -13,7 +13,8 @@ Parameter SETTINGS = "pathPDF, SMTP, sender";
 
 Method check(pRequest As Ens.Request, Output pResponse As CFAO.HUBIC.BofficeConf.messages.checkForexMsg) As %Status
 {
-	$$$LOGINFO("-----------------------------------")
+	set idBatch = pRequest.StringValue
+	$$$LOGINFO("ID Batch : " _ idBatch _ " --------------------------")
 
 	set ^boConfSettings = {}
 	set ^boConfSettings.SMTP = ..SMTP
@@ -26,7 +27,7 @@ Method check(pRequest As Ens.Request, Output pResponse As CFAO.HUBIC.BofficeConf
 	set request =
 		  "SELECT * "
 		_ "FROM CFAO_HUBIC_BofficeConf_tables"
-		_ "WHERE idBatch = " _ pRequest
+		_ "WHERE idBatch = " _ idBatch
 
 	set data = ##class(CFAO.HUBIC.Outils).queryJSON(request)
 	set iter = data.%GetIterator()
@@ -65,11 +66,11 @@ Method check(pRequest As Ens.Request, Output pResponse As CFAO.HUBIC.BofficeConf
 		// SWAP type (the line must find 2 conf : spot and term)
 		} elseif ((confType = "SWAP") && ((bank = "CA") || (bank = "SG"))) {
 
-			set spot = ..match(pRequest, key, 0)
+			set spot = ..match(idBatch, key, 0)
 			set spot.idEaiForex = idEaiForex
 			set spot.idForex = idForex
 
-			set term = ..match(pRequest, key, 1)
+			set term = ..match(idBatch, key, 1)
 			set term.idEaiForex = idEaiForex
 			set term.idForex = idForex
 
@@ -104,7 +105,7 @@ Method check(pRequest As Ens.Request, Output pResponse As CFAO.HUBIC.BofficeConf
 		// Term type
 		} else {
 
-			set matchedRow = ..match(pRequest, key, 1)
+			set matchedRow = ..match(idBatch, key, 1)
 
 			if 'matchedRow.match continue
 
@@ -128,8 +129,8 @@ Method check(pRequest As Ens.Request, Output pResponse As CFAO.HUBIC.BofficeConf
 	set pResponse = ##class(CFAO.HUBIC.BofficeConf.messages.checkForexMsg).%New()
 
 	if errorsForex.%Size() || errorsBank.%Size() {
-		set pResponse.forex = errorsForex
-		set pResponse.bank = errorsBank
+		set pResponse.forex = $REPLACE($REPLACE($E(errorsForex.%ToJSON(), 2, *-1), """", ""), ",", ", ")
+		set pResponse.bank	= $REPLACE($REPLACE($E(errorsBank.%ToJSON()	, 2, *-1), """", ""), ",", ", ")
 		set pResponse.status = 0
 	} else {
 		set pResponse.status = 1

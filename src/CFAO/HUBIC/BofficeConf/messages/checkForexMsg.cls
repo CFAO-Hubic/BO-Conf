@@ -1,9 +1,9 @@
 Class CFAO.HUBIC.BofficeConf.messages.checkForexMsg Extends Ens.Response
 {
 
-Property forex As %Library.DynamicArray;
+Property forex As %String(MAXLEN = 99999);
 
-Property bank As %Library.DynamicArray;
+Property bank As %String(MAXLEN = 99999);
 
 Property status As %Integer;
 

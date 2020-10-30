@@ -216,7 +216,7 @@ ClassMethod save(data As %Library.DynamicArray, match As %Integer) As %Status
 		set newLine.devisePaid				= data.devise1
 	}
 
-	if newLine.tradeType = "SWAA" {
+	if newLine.tradeType = "SWAAF" {
 		set newLine.confType				= "SWAP"
 		set newLine.amountReceived			= amount1
 		set newLine.deviseReceived			= data.devise1
@@ -224,7 +224,7 @@ ClassMethod save(data As %Library.DynamicArray, match As %Integer) As %Status
 		set newLine.devisePaid				= data.devise2
 	}
 
-	if newLine.tradeType = "SWAV" {
+	if newLine.tradeType = "SWAVF" {
 		set newLine.confType				= "SWAP"
 		set newLine.amountReceived			= amount2
 		set newLine.deviseReceived			= data.devise2

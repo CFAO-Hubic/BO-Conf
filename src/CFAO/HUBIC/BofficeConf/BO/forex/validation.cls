@@ -41,15 +41,11 @@ Method validate(pRequest As CFAO.HUBIC.BofficeConf.recordMap.JournalForex.Batch,
 
 	set pResponse = ##class(CFAO.HUBIC.BofficeConf.messages.validateForexMsg).%New()
 
-	set pResponse.invalid	= invalid
-	set pResponse.duplicate	= duplicate
-	set pResponse.inTab		= inTab
-	set pResponse.processed	= processed
-
-	$$$LOGINFO(pResponse.invalid.%ToJSON())
-	$$$LOGINFO(pResponse.duplicate.%ToJSON())
-	$$$LOGINFO(pResponse.inTab.%ToJSON())
-	$$$LOGINFO(pResponse.processed.%ToJSON())
+	set pResponse.fileName	= $p(pRequest.%Source, "\", *)
+	set pResponse.invalid	= $REPLACE($REPLACE($E(invalid.%ToJSON()	, 2, *-1), """", ""), ",", ", ")
+	set pResponse.duplicate	= $REPLACE($REPLACE($E(duplicate.%ToJSON()	, 2, *-1), """", ""), ",", ", ")
+	set pResponse.inTab		= $REPLACE($REPLACE($E(inTab.%ToJSON()		, 2, *-1), """", ""), ",", ", ")
+	set pResponse.processed	= $REPLACE($REPLACE($E(processed.%ToJSON()	, 2, *-1), """", ""), ",", ", ")
 
 	if 'invalid.%Size() && 'duplicate.%Size() && 'inTab.%Size() && 'processed.%Size() {
 		set pResponse.status = 1

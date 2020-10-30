@@ -1,13 +1,15 @@
 Class CFAO.HUBIC.BofficeConf.messages.validateForexMsg Extends Ens.Response
 {
 
-Property invalid As %Library.DynamicArray;
+Property invalid As %String(MAXLEN = 99999);
 
-Property duplicate As %Library.DynamicArray;
+Property duplicate As %String(MAXLEN = 99999);
 
-Property inTab As %Library.DynamicArray;
+Property inTab As %String(MAXLEN = 99999);
 
-Property processed As %Library.DynamicArray;
+Property processed As %String(MAXLEN = 99999);
+
+Property fileName As %String(MAXLEN = 999);
 
 Property status As %Integer;
 
@@ -29,6 +31,9 @@ Storage Default
 </Value>
 <Value name="5">
 <Value>status</Value>
+</Value>
+<Value name="6">
+<Value>fileName</Value>
 </Value>
 </Data>
 <DefaultData>validateForexMsgDefaultData</DefaultData>

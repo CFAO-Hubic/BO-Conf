@@ -47,13 +47,13 @@ Method match(data As %Library.DynamicObject) As %Library.DynamicArray
 	if data.spot 		 = "" {set spot			= ""}	else {set spot			= " AND spot = " _ data.spot}
 
 	set request =
-		"SELECT "
-			_"COUNT(*) AS ""match"","
-			_"idForex,"
-			_"ID AS ""idEaiForex"" "
-		_"FROM CFAO_HUBIC_BofficeConf_tables.forex "
-		_"WHERE "
-			_"matchStatus = 0"
+		"SELECT"
+			_" COUNT(*) AS ""match"""
+			_",idForex"
+			_",ID AS ""idEaiForex"""
+		_" FROM CFAO_HUBIC_BofficeConf_tables.forex"
+		_" WHERE"
+			_" matchStatus = 0"
 			_" AND tradeDate = '"_data.tradeDate_"'"
 			_" AND bank = '"_data.bank_"'"
 			_" AND deviseReceived = '"_data.deviseReceived_"'"

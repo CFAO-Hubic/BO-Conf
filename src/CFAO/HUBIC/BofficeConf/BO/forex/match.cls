@@ -26,13 +26,13 @@ Method check(pRequest As Ens.Request, Output pResponse As CFAO.HUBIC.BofficeConf
 
 	set request =
 		  "SELECT * "
-		_ "FROM CFAO_HUBIC_BofficeConf_tables"
+		_ "FROM CFAO_HUBIC_BofficeConf_tables.forex "
 		_ "WHERE idBatch = " _ idBatch
 
 	set data = ##class(CFAO.HUBIC.Outils).queryJSON(request)
 	set iter = data.%GetIterator()
 
-	while iter.%GetNext(.key , .row) {
+	while iter.%GetNext(.key, .row) {
 
 		set idEaiForex		= row.ID
 		set idForex			= row.idForex
@@ -66,14 +66,15 @@ Method check(pRequest As Ens.Request, Output pResponse As CFAO.HUBIC.BofficeConf
 		// SWAP type (the line must find 2 conf : spot and term)
 		} elseif ((confType = "SWAP") && ((bank = "CA") || (bank = "SG"))) {
 
-			set spot = ..match(idBatch, key, 0)
+			set spot = ..match(row, 0)
 			set spot.idEaiForex = idEaiForex
 			set spot.idForex = idForex
 
-			set term = ..match(idBatch, key, 1)
+			set term = ..match(row, 1)
 			set term.idEaiForex = idEaiForex
 			set term.idForex = idForex
 
+			if ('spot.match && 'term.match) continue
 			if (spot.match && 'term.match) set spot.match = 9999
 			if ('spot.match && term.match) set term.match = 9999
 
@@ -105,7 +106,7 @@ Method check(pRequest As Ens.Request, Output pResponse As CFAO.HUBIC.BofficeConf
 		// Term type
 		} else {
 
-			set matchedRow = ..match(idBatch, key, 1)
+			set matchedRow = ..match(row, 1)
 
 			if 'matchedRow.match continue
 
@@ -179,6 +180,9 @@ ClassMethod match(row, type = 0) As %Library.DynamicArray
 			_ " AND maturityDate 	= '" _ maturityDate 	_ "'"
 			_ " AND term 		 	= '" _ term				_ "'"
 	}
+
+	if row.ID < 10 $$$LOGINFO(row.%ToJSON())
+	if row.ID < 10 $$$LOGINFO(request)
 
 	set data = ##class(CFAO.HUBIC.Outils).queryJSON(request)
 

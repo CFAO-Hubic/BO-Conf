@@ -107,6 +107,7 @@ ClassMethod save(data As %Library.DynamicArray, match As %Integer) As %Status
 	set newLine.idForex					= data.idForex
 	set newLine.bank					= data.bank
 	set newLine.tradeType				= data.tradeType
+	set newLine.tradeDate				= data.tradeDate
 	set newLine.valueDate				= data.valueDate
 	set newLine.maturityDate			= data.maturityDate
 	set newLine.amountReceivedRemaining	= data.amount1Remaining

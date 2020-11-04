@@ -71,9 +71,9 @@ Property matchDate As %String;
 
 Property confType As %String(MAXLEN = 50);
 
-Property archived As %Integer(DISPLAYLIST = ",Non,Oui", VALUELIST = ",0,1");
+Property historized As %Integer(DISPLAYLIST = ",Non,Oui", VALUELIST = ",0,1");
 
-Property archiveDate As %String;
+Property historizedDate As %String;
 
 Property forexStatus As %String;
 
@@ -117,7 +117,7 @@ ClassMethod save(data As %Library.DynamicArray, match As %Integer) As %Status
 	set newLine.utiCci					= data.utiCci
 	set newLine.parentTradeCce			= data.parentTradeCce
 	set newLine.matchStatus				= 0
-	set newLine.archived				= 0
+	set newLine.historized				= 0
 	set amount1 = $replace($p($replace(data.amount1, " ", ""), ".", 1), ",", "")
 	set amount2 = $replace($p($replace(data.amount2, " ", ""), ".", 1), ",", "")
 
@@ -334,10 +334,10 @@ Storage Default
 <Value>confType</Value>
 </Value>
 <Value name="23">
-<Value>archived</Value>
+<Value>historized</Value>
 </Value>
 <Value name="24">
-<Value>archiveDate</Value>
+<Value>historizedDate</Value>
 </Value>
 <Value name="25">
 <Value>forexStatus</Value>

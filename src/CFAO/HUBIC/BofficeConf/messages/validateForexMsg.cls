@@ -13,8 +13,17 @@ Property fileName As %String(MAXLEN = 999);
 
 Property status As %Integer;
 
+Property test As array Of %String;
+
+Property test2 As list Of %String;
+
 Storage Default
 {
+<Data name="test">
+<Attribute>test</Attribute>
+<Structure>subnode</Structure>
+<Subscript>"CFAO.HUBIC.BofficeConf.messages.validateForexMsg.test"</Subscript>
+</Data>
 <Data name="validateForexMsgDefaultData">
 <Subscript>"validateForexMsg"</Subscript>
 <Value name="1">
@@ -30,10 +39,13 @@ Storage Default
 <Value>processed</Value>
 </Value>
 <Value name="5">
-<Value>status</Value>
+<Value>fileName</Value>
 </Value>
 <Value name="6">
-<Value>fileName</Value>
+<Value>status</Value>
+</Value>
+<Value name="7">
+<Value>test2</Value>
 </Value>
 </Data>
 <DefaultData>validateForexMsgDefaultData</DefaultData>

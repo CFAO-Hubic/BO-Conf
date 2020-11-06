@@ -258,7 +258,7 @@ ClassMethod match(data As %Library.DynamicArray, match As %Integer) As %Status
 		if line.contrat set separator = " | "
 		set line.contrat = line.contrat _ separator _ data.contrat
 	}
-	
+
 	set tSC = line.%Save()
 
 	quit tSC

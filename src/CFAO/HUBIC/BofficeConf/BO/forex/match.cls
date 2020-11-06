@@ -61,7 +61,7 @@ Method check(pRequest As Ens.Request, Output pResponse As CFAO.HUBIC.BofficeConf
 			if 'tSC || 'tSC2 continue
 
 			set tSC = ##class(CFAO.HUBIC.BofficeConf.functions.commons).sendConfEmail(matchedRow.idEaiBank)
-			if 'tSC $$$LOGINFO("Erreur lors de l'envoie de l'email (ID : " _ matchedRow.idEaiForex _ $c(13,10) _ tCS)
+			if 'tSC $$$LOGINFO("Erreur lors de l'envoie de l'email (ID : " _ matchedRow.idEaiForex _ $c(13,10) _ tSC)
 
 		// SWAP type (the line must find 2 conf : spot and term)
 		} elseif ((confType = "SWAP") && ((bank = "CA") || (bank = "SG"))) {
@@ -94,11 +94,11 @@ Method check(pRequest As Ens.Request, Output pResponse As CFAO.HUBIC.BofficeConf
 			if 'spot.match || 'term.match continue
 
 			set tSC = ##class(CFAO.HUBIC.BofficeConf.functions.commons).sendConfEmail(spot.idEaiBank)
-			if 'tSC $$$LOGINFO("Erreur lors de l'envoie de l'email (ID : " _ spot.idEaiForex _ $c(13,10) _ tCS)
+			if 'tSC $$$LOGINFO("Erreur lors de l'envoie de l'email (ID : " _ spot.idEaiForex _ $c(13,10) _ tSC)
 
 			if spot.confFileName '= term.confFileName {
 				set tSC = ##class(CFAO.HUBIC.BofficeConf.functions.commons).sendConfEmail(term.idEaiBank)
-				if 'tSC $$$LOGINFO("Erreur lors de l'envoie de l'email (ID : " _ term.idEaiForex _ $c(13,10) _ tCS)
+				if 'tSC $$$LOGINFO("Erreur lors de l'envoie de l'email (ID : " _ term.idEaiForex _ $c(13,10) _ tSC)
 			} else {
 				set tSC = ##class(CFAO.HUBIC.BofficeConf.functions.commons).updateEmailStatus(term.idEaiBank)
 			}
@@ -123,9 +123,11 @@ Method check(pRequest As Ens.Request, Output pResponse As CFAO.HUBIC.BofficeConf
 			if 'tSC || 'tSC2 continue
 
 			set tSC = ##class(CFAO.HUBIC.BofficeConf.functions.commons).sendConfEmail(matchedRow.idEaiBank)
-			if 'tSC $$$LOGINFO("Erreur lors de l'envoie de l'email (ID : " _ matchedRow.idEaiForex _ $c(13,10) _ tCS)
+			if 'tSC $$$LOGINFO("Erreur lors de l'envoie de l'email (ID : " _ matchedRow.idEaiForex _ $c(13,10) _ tSC)
 		}
 	}
+
+	do ##class(CFAO.HUBIC.BofficeConf.functions.historization).historize()
 
 	set pResponse = ##class(CFAO.HUBIC.BofficeConf.messages.checkForexMsg).%New()
 
@@ -180,9 +182,6 @@ ClassMethod match(row, type = 0) As %Library.DynamicArray
 			_ " AND maturityDate 	= '" _ maturityDate 	_ "'"
 			_ " AND term 		 	= '" _ term				_ "'"
 	}
-
-	if row.ID < 10 $$$LOGINFO(row.%ToJSON())
-	if row.ID < 10 $$$LOGINFO(request)
 
 	set data = ##class(CFAO.HUBIC.Outils).queryJSON(request)
 
